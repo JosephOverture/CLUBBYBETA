@@ -1,0 +1,11 @@
+# Support operations
+
+Customers open a case from their booking or received ticket, enter a subject and question, read a paginated conversation, reply, resolve or reopen it. One unresolved conversation per customer/booking prevents duplicate queues. Ten new cases per account/day and twenty replies/minute limit abuse; idempotency and version checks prevent duplicate or overwritten actions.
+
+Only venue owners/managers with `support.manage` and a matching venue scope can read or reply to seller cases. Door, editor and finance access do not grant conversation access. Platform support/admin can use the global queue and assign an active support agent with an audited reason. Revoked authority is rechecked inside reply transactions. A received-ticket case belongs to its creator and does not expose the original buyer's order/payment details or other cases.
+
+`GET /v1/me/access` supplies server-derived capabilities for navigation. Personal and seller lists use `/v1/support`, with optional organizationId/status/before filters; the global queue is `/v1/admin/support`. `/v1/support/:id` uses a numeric message cursor in `after`. Replies carry expectedVersion and an idempotency key. `/v1/admin/support/:id/assignment` requires a reason/version and an active support agent. Status `waiting` means staff are waiting for the customer; customers can select open or resolved. A response/status change notifies the other participants through the durable notification system without including message content in the alert.
+
+Support communications never directly alter money or admission rights. Refunds, unknown provider refunds, manual admission, door collection correction and group money reviews remain in the owning commerce services, which enforce their own role, evidence, reason and idempotency rules. Existing receipt/resend and reconciliation tools are described in the commerce, tables and groups runbooks.
+
+`tests/support.database.test.ts` covers actual PostgreSQL creation/reply races, recipient notification, venue scopes, platform assignment and revocation, long message histories, reopening and received-ticket isolation. The client Support panel is shared by iOS and web. Real staff onboarding and operational response SLAs must be configured for deployment.

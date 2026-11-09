@@ -1,0 +1,17 @@
+# Catalogue and media operations
+
+Use verified staff sessions with the organization/venue permissions returned by the identity/access system. Endpoint inventory is published at `/v1/openapi.json`; DTO validation remains authoritative in each owning module. Request bodies never supply an actor or a trusted role.
+
+Admin creates a destination with an IANA timezone, a supported ISO currency and safe aliases. Native-sale eligibility is separate and defaults off. Owners create draft venues, edit with `expectedVersion`, then publish after address/coordinates/description are complete. An HTTP 409 means reload the current version before choosing an update. Claiming an existing fixture requires platform review and the expected venue version; a claim cannot grant ownership by itself.
+
+Venue schedules contain day-of-week intervals (Sunday=0) and local-date exceptions. A closing time before the opening time continues into the next day. A date exception overrides that day's normal and overnight carry-in schedule. Events use explicit full timestamps with offsets matching the venue timezone; nonexistent spring-forward times are rejected and repeated autumn times require an explicit valid offset.
+
+Organizers submit event proposals under their approved organization. Venue publishers can request changes, reject, or approve. Reviews retain prior payloads, comments and versions. Retried approval refers to the already-created event. Material occurrence changes are recorded in `catalogue_changes` and a durable outbox event. Commerce must consume these changes before its phase enables sales; no M3 customer payment exists to silently invalidate.
+
+Public list/detail/event/discover/media routes all check current destination and venue publication. Search supports indexed text/tags, map bounds including the antimeridian, great-circle distance and a cursor bound to the same query. Availability is not fabricated: authoritative ticket/table availability is added by commerce. Saved records are private to the authenticated user.
+
+External mode returns an event override or the venue fallback URL. URLs must be public HTTPS origins without embedded credentials, IP literals or local/private hostnames. The backend does not fetch the URL. An external listing with no valid link has no checkout action. Changing commercial mode does not delete any Clubby record.
+
+For images, create an upload under its venue or event, then PUT exactly the authorized bytes to the returned path using `application/octet-stream`. Only JPEG/PNG/WebP are accepted. Worker validation checks actual decoding, format, animation and maximum pixel count, then creates metadata-stripped WebP variants and removes the original. Poll the protected status route, preview as authorized staff, then attach with `expectedVersion`. Event organizers may manage their event art without replacing the venue hero. Referenced media cannot be deleted. Expired unused uploads and deleted unreferenced media are cleaned through recoverable jobs.
+
+Local storage is outside the public web root and excluded from Git. Production uses a private S3 bucket with TLS, encryption and tightly scoped credentials; configure the bucket, region and access credentials in the deployment secret store. No S3 account or CDN is provisioned by these local tests. Preserve object privacy when configuring a CDN; it must not cache unpublished/quarantined content as public.

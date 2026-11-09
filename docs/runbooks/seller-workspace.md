@@ -1,0 +1,21 @@
+# Seller and catalogue workspace
+
+The shared Expo client exposes customer, seller, door, finance and administration sections from current server permissions. Every API independently authorizes the actor; hiding a navigation control is not an authorization boundary. Foreground/session checks refresh access, and sign-out removes private selections. The original static prototype remains a reference, not the working application.
+
+Seller account owners apply for review, accept versioned commercial terms, open Stripe onboarding, refresh provider requirements, invite/revoke staff with optional venue scope, and create/pause promotion codes. Ticket checkout accepts those codes. Invitations contain an email-bound code; staff and invitation lists never expose bearer credentials. Seller resource lists use cursor pagination and include drafts.
+
+Venue tools edit contact/location, tags, age, recurring opening intervals and dated exceptions. Publication uses a version and reason. Event tools create up to 100 dated occurrences with explicit venue-local UTC offsets, edit content, publish/hide and request audited cancellation/rescheduling. Event changes retain the existing transactional booking/refund handling. An organizer can propose an event at another published venue; the host requests revisions, rejects, or approves publication. Review history remains available.
+
+Ticket inventory includes tax-inclusive prices, capacity, included drinks, optional extra drinks, sale windows and publication. The event seller owns ticket pricing. The venue host controls overall capacity, admission blocks and tables. The client distinguishes these roles using server projections, and mutation APIs recheck membership and venue scope.
+
+Floor plans retain stable physical table IDs across immutable versions. Editors manage rooms, seats, normalized geometry and preview. Events pin a version before table offers are created. Offers specify slots, party limits, price/deposit, inclusions, spend, tax, drinks and no-show terms. Existing offers retain their contract; pause an offer and create a replacement for new terms. Physical blocks use the same exclusion constraint as reservations.
+
+Cover images use the official Expo system picker on iOS/web. Only JPEG, PNG and WebP up to 5 MB enter the binary authenticated upload path. Worker processing checks actual format, dimensions, metadata and creates private derivatives. A ready image can be previewed through an authenticated binary client request and attached with the current venue/event version. An in-use asset cannot be deleted until replaced. Apple/Expo picker behavior follows [Expo ImagePicker documentation](https://docs.expo.dev/versions/latest/sdk/imagepicker/); real-device permissions remain part of the release matrix.
+
+Owners can submit venue-ownership evidence; only platform administrators review it. Featured placement administration is versioned, audited and paginated. Removal preserves a versioned inactive row so an older editor cannot overwrite a recreated placement. Public discovery filters hidden venues/destinations and inactive/expired placements.
+
+Discovery supports destination, text/tag and distance search, featured placements, synchronized saves, venue detail/directions, authoritative upcoming events and external purchase links. Native checkout availability follows public server configuration. The server still decides final eligibility at hold/payment time.
+
+Local browser verification on 24 September 2026 covered email sign-in, reload recovery, profile changes, seller application, named fixture approval, draft venue with overnight hours, draft event, 25.50 EUR ticket tier, physical-table floor plan, image upload/processing/private preview/attachment. It found and fixed a local cookie-site mismatch: default web API calls now use the same `localhost` or `127.0.0.1` hostname as the page. Explicit deployed API origins remain unchanged. Local fixture records are named “Local UI Review”; the venue/event remain drafts and the ticket tier paused. No live payment provider was configured.
+
+Migration 018 was applied to persistent local development on 24 September 2026. Do not edit it after application. API regression evidence is in `tests/workspace.database.test.ts`; binary session/refresh/logout boundaries and local-origin resolution are in `tests/client-media.test.ts`.

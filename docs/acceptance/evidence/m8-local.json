@@ -1,0 +1,44 @@
+{
+  "recordedAt": "2026-09-24T01:11:59.575Z",
+  "environment": "disposable local PostgreSQL; payment provider double",
+  "onsale": {
+    "concurrency": 40,
+    "stock": 20,
+    "accepted": 20,
+    "rejected": 20,
+    "requests": 40,
+    "p50Ms": 363,
+    "p95Ms": 406,
+    "maxMs": 409
+  },
+  "admissions": {
+    "concurrency": 40,
+    "accepted": 20,
+    "duplicateRejected": 20,
+    "requests": 40,
+    "p50Ms": 122,
+    "p95Ms": 171,
+    "maxMs": 176
+  },
+  "catalogue": {
+    "concurrency": 10,
+    "requests": 100,
+    "p50Ms": 3,
+    "p95Ms": 8,
+    "maxMs": 9
+  },
+  "restore": {
+    "tables": 98,
+    "tableFingerprintsMatch": true,
+    "paidAdmissions": 20,
+    "strandedJobRecoveredOnce": true,
+    "elapsedMs": 1417
+  },
+  "corruptRotationRolledBack": true,
+  "encryptionRotation": {
+    "columns": 15,
+    "rewrapped": 123,
+    "retryChangedRecords": 0,
+    "financialEntriesUnchanged": true
+  }
+}

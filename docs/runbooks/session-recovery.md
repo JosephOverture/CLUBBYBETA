@@ -1,0 +1,9 @@
+# Web and iOS session recovery
+
+The shared SDK coordinates one native refresh for simultaneous requests rejected with the authentication guard's `UNAUTHENTICATED` response. A late rejection using the old token reuses the newly stored credential. JSON request bodies and idempotency keys are preserved. Business denials, ambiguous network errors and provider outcomes never trigger automatic write replay. Account changes invalidate pending responses and prevent a failed request from being resent under a different account.
+
+The native client stores access/refresh/CSRF credentials together as one OS secure-store record, so a crash between two separate writes cannot create mismatched tokens. Earlier development installations migrate their stored refresh token once. Refresh rotation and reuse detection remain authoritative in PostgreSQL. A failed/expired refresh requires sign-in again; recovery never creates a replacement identity. Logout clears local credentials and presented notifications even during a service outage and explicitly reports when remote revocation could not be confirmed.
+
+Web sessions retain secure HttpOnly cookies and origin/CSRF checks. Migration 012 stores the encrypted CSRF token alongside its verification hash. Authenticated recovery returns the existing token, preventing one tab from invalidating another. Older sessions receive a single migration token on first recovery. A revoked or expired session cannot recover a token. Browser-origin validation still applies independently.
+
+`tests/client-session.database.test.ts` uses the real API guards and PostgreSQL to exercise concurrent renewal, an expired-session write, delayed old responses, non-replay of uncertain writes, account replacement, revoked refresh families and simultaneous browser tabs. Signed-device secure-store crash/network testing remains part of the release device matrix.

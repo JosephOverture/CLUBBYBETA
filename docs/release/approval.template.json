@@ -1,0 +1,18 @@
+{
+  "environment": "production",
+  "revision": "REPLACE_WITH_REVIEWED_40_CHARACTER_GIT_SHA",
+  "apiOrigin": "https://api.your-domain.example",
+  "webOrigins": ["https://your-domain.example"],
+  "approvedAt": "REPLACE_AFTER_REVIEW",
+  "expiresAt": "REPLACE_WITHIN_30_DAYS_OF_APPROVAL",
+  "checks": {
+    "provider-payments-refunds-disputes": {"result":"pending","reviewer":"","evidence":""},
+    "seller-commercial-policies": {"result":"pending","reviewer":"","evidence":""},
+    "security-privacy-review": {"result":"pending","reviewer":"","evidence":""},
+    "backup-restore-and-alert-delivery": {"result":"pending","reviewer":"","evidence":""},
+    "capacity-and-outage-rehearsal": {"result":"pending","reviewer":"","evidence":""},
+    "web-customer-seller-door-journeys": {"result":"pending","reviewer":"","evidence":""},
+    "signed-ios-device-journeys": {"result":"pending","reviewer":"","evidence":""},
+    "apple-entitlements-and-store-metadata": {"result":"pending","reviewer":"","evidence":""}
+  }
+}
