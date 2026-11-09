@@ -2,7 +2,7 @@
 // A Google Maps browser key must be restricted by HTTP referrer and API.
 window.CLUBBY_CONFIG = Object.freeze({
   // Use 'catalogue' only for an explicitly offline preview with browser storage.
-  dataMode: 'api',
+  dataMode: 'catalogue',
   // Empty means the same origin that serves this web app.
   apiBaseUrl: '',
   googleMapsApiKey: '',
