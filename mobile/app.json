@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Clubby Development",
+    "slug": "clubby",
+    "version": "0.1.0",
+    "scheme": "clubby",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.clubby.app",
+      "usesAppleSignIn": true,
+      "supportsTablet": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-secure-store",
+      ["@stripe/stripe-react-native", {}],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Clubby uses the camera to scan admission tickets.",
+          "recordAudioAndroid": false
+        }
+      ],
+      "expo-notifications",
+      "expo-apple-authentication",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Clubby lets sellers choose venue and event cover images.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ]
+    ]
+  }
+}
