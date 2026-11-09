@@ -1,0 +1,8 @@
+FROM node:24-bookworm-slim
+WORKDIR /app
+ENV NODE_ENV=production WEB_HOST=0.0.0.0 WEB_PORT=8081
+COPY --chown=node:node web ./web
+COPY --chown=node:node scripts/beta-server.mjs ./scripts/beta-server.mjs
+USER node
+EXPOSE 8081
+CMD ["node", "scripts/beta-server.mjs"]

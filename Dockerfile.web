@@ -1,0 +1,27 @@
+FROM node:24-bookworm-slim AS build
+WORKDIR /app
+RUN npm install --global pnpm@11.19.0
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages ./packages
+COPY apps/mobile ./apps/mobile
+COPY scripts/build-association.mjs ./scripts/build-association.mjs
+RUN pnpm install --frozen-lockfile
+ARG EXPO_PUBLIC_API_URL
+ARG EXPO_PUBLIC_WEB_URL
+ARG APPLE_TEAM_ID
+ARG APP_ENV=staging
+ENV CLUBBY_BUILD_ENV=$APP_ENV
+ENV EXPO_PUBLIC_API_URL=$EXPO_PUBLIC_API_URL EXPO_PUBLIC_WEB_URL=$EXPO_PUBLIC_WEB_URL
+RUN node --input-type=module -e "for(const k of ['EXPO_PUBLIC_API_URL','EXPO_PUBLIC_WEB_URL']){const u=new URL(process.env[k]);if(u.protocol!=='https:')throw Error('HTTPS build origins required')}"
+RUN pnpm --filter @clubby/mobile export:web
+RUN node scripts/build-association.mjs
+
+FROM node:24-bookworm-slim
+WORKDIR /app
+ENV NODE_ENV=production PORT=8080
+COPY --from=build --chown=node:node /app/apps/mobile/dist/web ./apps/mobile/dist/web
+COPY scripts/web-server.mjs scripts/healthcheck.mjs ./scripts/
+USER node
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 CMD ["node", "scripts/healthcheck.mjs"]
+CMD ["node", "scripts/web-server.mjs"]

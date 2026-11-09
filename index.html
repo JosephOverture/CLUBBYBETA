@@ -1,0 +1,2467 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Nocturne Milano</title>
+<meta name="description" content="A premium mobile nightlife discovery and booking platform for Milan — map-led venue discovery, tickets with QR, and 3D table reservations.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<script src="qrcode.js"></script>
+<script src="milanmap.js"></script>
+<script>/* apply saved theme before first paint to avoid a flash */try{if(localStorage.getItem('nocturne-theme')==='light')document.documentElement.setAttribute('data-theme','light');}catch(e){}</script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#08080B; --bg2:#0D0D12; --surface:#15151D; --surface2:#1D1D28; --surface3:#26263380;
+  --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
+  --text:#F6F5FA; --muted:#9D9BAD; --muted2:#6E6C7E;
+  --violet:#8B5CF6; --violet-2:#A855F7; --magenta:#D946EF; --indigo:#6366F1;
+  --green:#35D6A0; --red:#FB5B78; --amber:#F6B44C; --blue:#5AA8FF;
+  --grad:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%);
+  --grad-soft:linear-gradient(135deg,rgba(139,92,246,.22),rgba(217,70,239,.14));
+  --glow:0 0 32px rgba(139,92,246,.45);
+  --radius:20px; --radius-sm:13px; --radius-xs:9px;
+  --ease:cubic-bezier(.22,1,.36,1); --ease-in:cubic-bezier(.5,0,.75,0);
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --shadow:0 18px 50px -12px rgba(0,0,0,.7);
+  /* structural (theme-aware) tokens */
+  --page-bg:#050507;
+  --page-grad:radial-gradient(1200px 800px at 30% -10%,#161327 0%,#08070c 45%,#050506 100%);
+  --topbar-grad:linear-gradient(#08080b 55%,transparent);
+  --tabbar-grad:linear-gradient(transparent,rgba(8,8,11,.85) 30%,#08080b);
+  --ovback-grad:linear-gradient(#08080b,transparent);
+  --map-title:rgba(255,255,255,.045);
+  --map-label:#ffffff; --map-label-sh:0 2px 8px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.9);
+  --nil1:#0e0d16; --nil2:#100f19; --nil3:#131120; --nil-stroke:rgba(139,92,246,.16);
+  --cityline:rgba(168,85,247,.55); --map-rect:transparent;
+  --skel1:#17171f; --skel2:#22222e;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#F4F2EC; --bg2:#ECEAE2; --surface:#FFFFFF; --surface2:#F6F4EE; --surface3:#1712260a;
+  --line:rgba(23,21,35,.10); --line2:rgba(23,21,35,.17);
+  --text:#191722; --muted:#5F5D6E; --muted2:#928FA0;
+  --violet:#7C4DD6; --violet-2:#8B45D6; --magenta:#C13BD6; --indigo:#6366F1;
+  --green:#12A97A; --red:#E5476A; --amber:#D9902A; --blue:#3A86E0;
+  --grad:linear-gradient(135deg,#8B5CF6 0%,#D946EF 100%);
+  --grad-soft:linear-gradient(135deg,rgba(139,92,246,.14),rgba(217,70,239,.09));
+  --glow:0 0 28px rgba(139,92,246,.30);
+  --shadow:0 16px 42px -18px rgba(40,28,70,.30);
+  --page-bg:#F4F2EC;
+  --page-grad:radial-gradient(1200px 800px at 30% -10%,#EFEAF9 0%,#F4F2EC 46%,#F1EFE8 100%);
+  --topbar-grad:linear-gradient(#F4F2EC 55%,transparent);
+  --tabbar-grad:linear-gradient(transparent,rgba(244,242,236,.85) 30%,#F4F2EC);
+  --ovback-grad:linear-gradient(rgba(244,242,236,.9),transparent);
+  --map-title:rgba(30,22,60,.05);
+  --map-label:#20202b; --map-label-sh:0 1px 2px rgba(255,255,255,.95),0 0 6px rgba(255,255,255,.8);
+  --nil1:#FDFCFF; --nil2:#F6F3FE; --nil3:#EFEBFB; --nil-stroke:rgba(124,77,214,.22);
+  --cityline:rgba(124,77,214,.55); --map-rect:#E8E4F2;
+  --skel1:#ECEAE3; --skel2:#F5F3EE;
+}
+/* smooth colour crossfade only while switching theme */
+body.theming, body.theming *{transition:background-color .32s var(--ease),color .28s var(--ease),border-color .32s var(--ease),fill .32s var(--ease),stroke .32s var(--ease),box-shadow .32s var(--ease)!important}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:var(--sans);color:var(--text);
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--page-bg);background:var(--page-grad);
+}
+button{font-family:inherit;color:inherit;cursor:pointer;border:none;background:none}
+input,select{font-family:inherit}
+::-webkit-scrollbar{width:0;height:0}
+.hidden{display:none!important}
+
+/* ---------- phone frame ---------- */
+#phone{
+  position:relative;width:100%;max-width:428px;height:100dvh;max-height:928px;
+  background:var(--bg);overflow:hidden;
+  box-shadow:0 40px 120px -20px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.04);
+}
+@media(min-width:460px){#phone{border-radius:44px;height:92dvh}}
+#app{position:absolute;inset:0;overflow:hidden}
+
+/* ---------- top search ---------- */
+.topbar{position:absolute;top:0;left:0;right:0;z-index:40;padding:14px 14px 10px;
+  background:var(--topbar-grad);pointer-events:none}
+.topbar>*{pointer-events:auto}
+.searchrow{display:flex;gap:9px;align-items:center}
+.search{flex:1;display:flex;align-items:center;gap:10px;height:46px;padding:0 15px;
+  background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  box-shadow:0 6px 22px -10px rgba(0,0,0,.7)}
+.search svg{width:17px;height:17px;color:var(--muted);flex:none}
+.search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14.5px}
+.search input::placeholder{color:var(--muted2)}
+.iconbtn{width:46px;height:46px;flex:none;display:grid;place-items:center;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;color:var(--text)}
+.iconbtn svg{width:18px;height:18px}
+.chips{display:flex;gap:8px;margin-top:11px;overflow-x:auto;padding-bottom:3px;scroll-behavior:smooth}
+.chip{flex:none;height:34px;padding:0 15px;border-radius:999px;font-size:13px;font-weight:500;
+  background:var(--surface);border:1px solid var(--line);color:var(--muted);
+  display:flex;align-items:center;gap:7px;transition:.25s var(--ease);white-space:nowrap}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.chip.on{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 18px -6px rgba(168,85,247,.7)}
+.chip.on .dot{background:#fff;box-shadow:none}
+
+/* ---------- MAP ---------- */
+#mapscreen{position:absolute;inset:0;overflow:hidden}
+#world{position:absolute;top:0;left:0;transform-origin:center center;will-change:transform}
+#mapsvg{position:absolute;width:100%;height:100%;display:block}
+:root[data-theme="light"] .mbg{fill:var(--map-rect)}
+.nil{fill:var(--nil2);stroke:var(--nil-stroke);stroke-width:.7;vector-effect:non-scaling-stroke}
+.nil:nth-child(3n){fill:var(--nil3)}
+.nil:nth-child(3n+1){fill:var(--nil1)}
+.cityline{fill:none;stroke:var(--cityline);stroke-width:1.8;stroke-linejoin:round}
+.mroad{fill:none;stroke:rgba(255,255,255,.05);stroke-width:.6}
+#markers{position:absolute;inset:0}
+.marker{position:absolute;transform:translate(-50%,-100%);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;transition:transform .3s var(--ease);
+  animation:markerIn .5s var(--ease) backwards}
+@keyframes markerIn{from{opacity:0;transform:translate(-50%,-70%) scale(.6)}}
+.marker .pin{width:52px;height:52px;border-radius:16px;position:relative;
+  border:2px solid rgba(255,255,255,.85);overflow:hidden;
+  box-shadow:0 8px 22px -6px rgba(0,0,0,.8);transition:.3s var(--ease)}
+.marker .pin::after{content:"";position:absolute;inset:0;background:var(--vibe)}
+.marker .pin .ic{position:absolute;inset:0;display:grid;place-items:center;z-index:2;font-size:22px}
+.marker .tail{width:2px;height:9px;background:rgba(255,255,255,.7);margin-top:-1px}
+.marker .lbl{margin-top:5px;font-size:12px;font-weight:600;color:var(--map-label);
+  text-shadow:var(--map-label-sh);white-space:nowrap;
+  font-family:var(--serif);letter-spacing:.2px}
+.marker.sel{z-index:10}
+.marker.sel .pin{transform:scale(1.18);border-color:var(--violet);box-shadow:0 0 0 4px rgba(139,92,246,.35),var(--glow)}
+.marker .live{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;
+  background:var(--green);border:2px solid #08080b;z-index:3}
+.marker .live.soon{background:var(--amber)}
+.marker .live.off{background:var(--muted2)}
+.maptitle{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);
+  font-family:var(--serif);font-size:64px;font-weight:600;letter-spacing:2px;
+  color:var(--map-title);pointer-events:none;user-select:none}
+.geo{position:absolute;right:14px;bottom:104px;z-index:35}
+.attrib{position:absolute;right:8px;bottom:92px;font-size:9px;color:var(--muted2);z-index:35;opacity:.7}
+
+/* ---------- bottom sheet (venue preview) ---------- */
+.sheet{position:absolute;left:0;right:0;bottom:78px;z-index:45;
+  transform:translateY(140%);transition:transform .5s var(--ease);will-change:transform}
+.sheet.show{transform:translateY(0)}
+.sheet-card{margin:0 10px;background:linear-gradient(180deg,var(--surface2),var(--surface));
+  border:1px solid var(--line2);border-radius:24px;padding:16px 16px 15px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.sheet-card .beam{position:absolute;inset:0;background:var(--vibe);opacity:.14;pointer-events:none}
+.grabber{width:40px;height:4px;border-radius:999px;background:var(--line2);margin:-4px auto 10px;position:relative}
+.sheet-btns{display:flex;gap:8px;flex:none}
+.sheet-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;position:relative}
+.vname{font-family:var(--serif);font-size:25px;font-weight:600;line-height:1.05;display:flex;align-items:center;gap:7px}
+.vname .spark{color:var(--violet-2);font-size:18px}
+.vtype{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-top:5px;font-weight:600}
+.save{width:40px;height:40px;border-radius:12px;background:var(--surface3);border:1px solid var(--line);
+  display:grid;place-items:center;flex:none}
+.save svg{width:18px;height:18px}.save.on svg{fill:var(--violet-2);color:var(--violet-2)}
+.statusrow{display:flex;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap;position:relative}
+.status{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:500;color:var(--text);
+  background:var(--surface3);padding:6px 11px;border-radius:999px;border:1px solid var(--line)}
+.status .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.status.soon .dot{background:var(--amber);box-shadow:0 0 8px var(--amber)}
+.status.off .dot{background:var(--muted2);box-shadow:none}
+.avstack{display:flex}
+.avstack .av{width:26px;height:26px;border-radius:50%;background:var(--grad);border:2px solid var(--surface);
+  margin-left:-8px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff}
+.avstack .av:first-child{margin-left:0}
+.vdesc{font-size:13.5px;line-height:1.5;color:var(--muted);margin-top:12px;position:relative}
+.tags{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap;position:relative}
+.tag{font-size:11.5px;color:var(--muted);background:var(--surface3);border:1px solid var(--line);
+  padding:5px 10px;border-radius:8px}
+.sheet-actions{display:flex;gap:9px;margin-top:15px;position:relative}
+.btn{flex:1;height:48px;border-radius:14px;font-size:14.5px;font-weight:600;display:flex;
+  align-items:center;justify-content:center;gap:8px;transition:.2s var(--ease)}
+.btn:active{transform:scale(.97)}
+.btn.pri{background:var(--grad);color:#fff;box-shadow:0 10px 26px -8px rgba(168,85,247,.65)}
+.btn.sec{background:var(--surface2);color:var(--text);border:1px solid var(--line2)}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--text)}
+.btn.wide{width:100%;flex:none}
+.btn svg{width:17px;height:17px}
+.btn.evt{position:relative}
+.btn .ecount{background:rgba(255,255,255,.22);border-radius:999px;padding:1px 8px;font-size:12px}
+
+/* ---------- overlay (full views) ---------- */
+.overlay{position:absolute;inset:0;z-index:60;background:var(--bg);overflow-y:auto;
+  transform:translateX(100%);transition:transform .42s var(--ease);will-change:transform}
+.overlay.show{transform:translateX(0)}
+.overlay.modal{transform:translateY(100%)}
+.overlay.modal.show{transform:translateY(0)}
+.ovback{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px;
+  background:var(--ovback-grad);pointer-events:none}
+.ovback>*{pointer-events:auto}
+.roundbtn{width:42px;height:42px;border-radius:50%;background:rgba(10,10,14,.6);backdrop-filter:blur(12px);
+  border:1px solid var(--line);display:grid;place-items:center;color:#fff;flex:none}
+.roundbtn svg{width:19px;height:19px}
+.ovtitle{font-size:15px;font-weight:600}
+
+/* venue hero */
+.hero{position:relative;height:340px;margin-top:-70px;overflow:hidden}
+.hero .img{position:absolute;inset:0;background:var(--vibe)}
+.hero .grain{position:absolute;inset:0;opacity:.5;
+  background:radial-gradient(120% 60% at 50% 0%,rgba(255,255,255,.14),transparent 60%)}
+.hero .beam{position:absolute;top:-30%;left:50%;width:60%;height:130%;transform:translateX(-50%) rotate(8deg);
+  background:linear-gradient(180deg,rgba(255,255,255,.35),transparent 70%);filter:blur(18px);opacity:.5}
+.hero .fade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,8,11,.35) 0%,transparent 30%,rgba(8,8,11,.6) 78%,var(--bg) 100%)}
+.hero .dots{position:absolute;bottom:118px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3}
+.hero .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.35)}
+.hero .dots i.on{background:#fff;width:18px;border-radius:3px}
+.hero-info{position:absolute;bottom:0;left:0;right:0;padding:0 18px 20px;z-index:3}
+.hero-info .vname{font-size:36px}
+.hero-info .loc{color:var(--muted);font-size:13.5px;margin-top:6px;display:flex;align-items:center;gap:6px}
+.vbody{padding:4px 18px 130px}
+.metarow{display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap}
+.section-h{font-family:var(--serif);font-size:20px;font-weight:600;margin:26px 0 13px}
+.evcard{display:flex;gap:13px;background:var(--surface);border:1px solid var(--line);border-radius:16px;
+  padding:11px;margin-bottom:11px;transition:.2s var(--ease)}
+.evcard:active{transform:scale(.985);background:var(--surface2)}
+.evthumb{width:76px;height:76px;border-radius:12px;flex:none;background:var(--evibe);position:relative;overflow:hidden}
+.evthumb .d{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  border-radius:8px;padding:3px 6px;text-align:center;line-height:1}
+.evthumb .d b{display:block;font-size:15px;font-weight:700}.evthumb .d s{font-size:8px;text-decoration:none;color:var(--muted);text-transform:uppercase}
+.evmeta{flex:1;min-width:0}
+.evmeta h4{font-size:15px;font-weight:600;margin-bottom:3px}
+.evmeta .art{font-size:12.5px;color:var(--violet-2);font-weight:500}
+.evmeta .sub{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:9px;flex-wrap:wrap}
+.evmeta .price{margin-top:7px;font-size:13px;font-weight:600}
+.evmeta .price s{color:var(--muted);font-weight:400;font-size:11.5px;text-decoration:none}
+.availbar{display:flex;gap:10px;margin-top:8px}
+.availpill{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.availpill .t{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.availpill .v{font-size:15px;font-weight:600;margin-top:4px}
+.mini-map{height:130px;border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--line);margin-top:6px}
+
+/* ---------- ticket flow ---------- */
+.flowbody{padding:8px 18px 150px}
+.step-h{font-family:var(--serif);font-size:27px;font-weight:600;line-height:1.1;margin:6px 0 6px}
+.step-sub{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+.tier{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:15px;margin-bottom:11px;
+  display:flex;justify-content:space-between;align-items:center;transition:.2s var(--ease);gap:12px}
+.tier.on{border-color:var(--violet);background:linear-gradient(var(--surface2),var(--surface));box-shadow:0 0 0 1px var(--violet),0 8px 24px -10px rgba(139,92,246,.5)}
+.tier h4{font-size:15.5px;font-weight:600}.tier .d{font-size:12px;color:var(--muted);margin-top:4px}
+.tier .left{font-size:11px;color:var(--amber);margin-top:6px}
+.tier .r{text-align:right;flex:none}
+.tier .r b{font-size:17px;font-weight:700}
+.radio{width:22px;height:22px;border-radius:50%;border:2px solid var(--line2);flex:none;transition:.2s}
+.tier.on .radio{border-color:var(--violet);background:radial-gradient(circle at center,var(--violet) 42%,transparent 46%)}
+.stepper{display:flex;align-items:center;gap:0;background:var(--surface2);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stepper button{width:42px;height:42px;font-size:22px;font-weight:400;color:var(--text);display:grid;place-items:center}
+.stepper button:disabled{color:var(--muted2)}
+.stepper .n{width:44px;text-align:center;font-size:16px;font-weight:600}
+.rowline{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid var(--line)}
+.rowline .lt h4{font-size:15px;font-weight:600}.rowline .lt p{font-size:12.5px;color:var(--muted);margin-top:3px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px;font-weight:500}
+.field input,.field select{width:100%;height:50px;background:var(--surface);border:1px solid var(--line);
+  border-radius:13px;padding:0 15px;color:var(--text);font-size:15px;outline:none;transition:.2s}
+.field input:focus,.field select:focus{border-color:var(--violet)}
+.field.row2{display:flex;gap:11px}.field.row2>div{flex:1}
+.cardface{background:linear-gradient(135deg,#1c1830,#241d3a);border:1px solid var(--line2);border-radius:16px;padding:16px;margin-bottom:13px}
+.cardface .brand{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.summary{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px;margin:8px 0 18px}
+.summary .l{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;color:var(--muted)}
+.summary .l.tot{color:var(--text);font-weight:700;font-size:17px;border-top:1px solid var(--line);margin-top:8px;padding-top:12px}
+.footer-cta{position:absolute;left:0;right:0;bottom:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom));
+  background:linear-gradient(transparent,var(--bg) 26%);z-index:5}
+.footer-cta .totline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.footer-cta .totline s{color:var(--muted);font-size:12px;text-decoration:none}
+.footer-cta .totline b{font-size:22px;font-family:var(--serif);font-weight:600}
+
+/* success + QR */
+.success{padding:30px 22px 40px;text-align:center;min-height:100%;display:flex;flex-direction:column;align-items:center}
+.checkwrap{width:88px;height:88px;border-radius:50%;background:var(--grad);display:grid;place-items:center;
+  margin:20px 0 8px;box-shadow:var(--glow);animation:pop .6s var(--ease)}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.checkwrap svg{width:44px;height:44px;color:#fff}
+.qrcard{background:#fff;border-radius:22px;padding:20px;margin:22px auto 0;width:100%;max-width:290px;
+  box-shadow:0 20px 50px -12px rgba(139,92,246,.4);animation:qrReveal .7s var(--ease) .2s backwards}
+@keyframes qrReveal{from{opacity:0;transform:scale(.85) translateY(10px);filter:blur(8px)}}
+.qrcard .qr{width:100%;aspect-ratio:1;display:grid;place-items:center}
+.qrcard .qr svg,.qrcard .qr img{width:100%;height:100%}
+.qrcard .qmeta{color:#0a0a0a;text-align:center;margin-top:14px;border-top:1px dashed #ccc;padding-top:13px}
+.qrcard .qmeta .ev{font-family:var(--serif);font-size:17px;font-weight:600}
+.qrcard .qmeta .dt{font-size:12px;color:#666;margin-top:3px}
+.qrcard .qmeta .tier{display:inline-block;margin-top:8px;background:#111;color:#fff;font-size:11px;font-weight:600;
+  padding:4px 11px;border-radius:999px;border:none}
+.qrcard .qmeta .drinks{font-size:11.5px;color:#8B5CF6;font-weight:600;margin-top:8px}
+.wallets{display:flex;gap:10px;margin:20px 0 0;width:100%;max-width:290px}
+.wallet{flex:1;height:46px;border-radius:12px;background:#000;border:1px solid #333;color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;font-weight:600}
+.wallet.g{background:#fff;color:#000}
+
+/* ---------- 3D TABLE ---------- */
+.floorwrap{height:52vh;position:relative;overflow:hidden;background:
+  radial-gradient(80% 60% at 50% 34%,#1c1636,#0a0a0e 78%);perspective:1000px;touch-action:none}
+.scene{position:absolute;top:48%;left:50%;width:360px;height:330px;
+  transform-style:preserve-3d;transform:translate(-50%,-50%) rotateX(54deg) rotateZ(0deg);
+  transition:transform .08s linear}
+.floorplane{position:absolute;inset:0;transform-style:preserve-3d;border-radius:10px;
+  background:
+    linear-gradient(rgba(139,92,246,.09) 1px,transparent 1px) 0 0/34px 34px,
+    linear-gradient(90deg,rgba(139,92,246,.09) 1px,transparent 1px) 0 0/34px 34px,
+    linear-gradient(135deg,#26203c,#191428);
+  border:2px solid rgba(139,92,246,.55);
+  box-shadow:0 0 80px rgba(139,92,246,.3),0 34px 60px rgba(0,0,0,.7),0 0 40px rgba(139,92,246,.15) inset}
+.zone{position:absolute;border-radius:7px;display:grid;place-items:center;
+  font-size:10px;letter-spacing:1px;color:rgba(255,255,255,.72);font-weight:700;text-transform:uppercase}
+.zone.dance{background:repeating-linear-gradient(45deg,rgba(139,92,246,.16),rgba(139,92,246,.16) 9px,rgba(139,92,246,.26) 9px,rgba(139,92,246,.26) 18px);border:1.5px solid rgba(139,92,246,.5)}
+.zone.dj{background:var(--grad);color:#fff;box-shadow:0 0 28px rgba(217,70,239,.7);transform:translateZ(14px)}
+.zone.bar{background:rgba(90,168,255,.2);border:1.5px solid rgba(90,168,255,.55);color:#bcd8ff}
+.zone.stage{background:rgba(246,180,76,.18);border:1.5px solid rgba(246,180,76,.5);color:#f6cf8c}
+.tbl{position:absolute;border-radius:8px;background:rgba(53,214,160,.32);border:2px solid var(--green);
+  display:grid;place-items:center;font-size:12px;font-weight:800;color:#eafff6;cursor:pointer;
+  transform-style:preserve-3d;transform:translateZ(12px);transition:.2s var(--ease);
+  box-shadow:0 0 16px rgba(53,214,160,.45),0 10px 14px rgba(0,0,0,.55)}
+.tbl.sold{background:rgba(251,91,120,.28);border-color:var(--red);color:#ffd7de;
+  box-shadow:0 0 14px rgba(251,91,120,.4),0 8px 12px rgba(0,0,0,.5);transform:translateZ(4px);cursor:not-allowed}
+.tbl.sel{background:var(--grad);border-color:#fff;color:#fff;box-shadow:0 0 30px rgba(168,85,247,.95),0 14px 20px rgba(0,0,0,.6);
+  transform:translateZ(38px) scale(1.14)}
+.tbl .h{position:absolute;top:100%;left:0;right:0;height:12px;background:linear-gradient(rgba(53,214,160,.4),transparent);border-radius:0 0 6px 6px}
+.tbl.sold .h{background:linear-gradient(rgba(251,91,120,.35),transparent)}
+.floorlegend{position:absolute;top:12px;left:12px;z-index:5;display:flex;gap:12px;font-size:11px}
+.floorlegend span{display:flex;align-items:center;gap:5px;color:var(--muted);background:rgba(10,10,14,.6);
+  backdrop-filter:blur(8px);padding:5px 9px;border-radius:999px}
+.floorlegend i{width:9px;height:9px;border-radius:3px}
+.floorhint{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:5;font-size:11px;
+  color:var(--muted);background:rgba(10,10,14,.6);backdrop-filter:blur(8px);padding:6px 12px;border-radius:999px;
+  display:flex;align-items:center;gap:6px}
+
+/* group payment */
+.progwrap{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:15px}
+.progtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.progtop .paid{font-size:24px;font-weight:700;font-family:var(--serif)}
+.progtop .paid s{color:var(--muted);font-size:12px;font-family:var(--sans);text-decoration:none;display:block;font-weight:400}
+.progtop .tgt{text-align:right;color:var(--muted);font-size:13px}.progtop .tgt b{color:var(--text);font-size:18px;font-family:var(--serif)}
+.progbar{height:10px;border-radius:999px;background:var(--surface2);overflow:hidden}
+.progbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--amber),var(--magenta));
+  width:0;transition:width 1s var(--ease)}
+.parts{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 4px}
+.partchip{display:flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 11px 4px 4px;font-size:12.5px}
+.partchip .av{width:22px;height:22px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:9px;font-weight:700}
+.partchip b{font-weight:600}.partchip s{color:var(--green);text-decoration:none;font-size:11px;margin-left:2px}
+.paystates{display:flex;gap:8px;overflow-x:auto;margin:14px 0}
+.paystate{flex:none;font-size:11px;padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+.paystate.on{background:var(--grad-soft);border-color:var(--violet);color:var(--text)}
+.chat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:13px;margin-top:6px}
+.msg{display:flex;gap:9px;margin-bottom:11px}
+.msg .av{width:28px;height:28px;border-radius:50%;background:var(--grad);flex:none;display:grid;place-items:center;font-size:10px;font-weight:700}
+.msg .bub{background:var(--surface2);border-radius:12px;padding:8px 11px;font-size:13px;max-width:78%}
+.msg .bub .who{font-size:11px;color:var(--violet-2);font-weight:600;margin-bottom:2px}
+.msg.me{flex-direction:row-reverse}.msg.me .bub{background:var(--grad-soft)}
+.chatin{display:flex;gap:8px;margin-top:6px}
+.chatin input{flex:1;height:42px;background:var(--surface2);border:1px solid var(--line);border-radius:11px;padding:0 13px;color:var(--text);outline:none;font-size:13.5px}
+.chatin button{width:42px;height:42px;border-radius:11px;background:var(--grad);display:grid;place-items:center}
+
+/* option cards */
+.optcard{border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:15px;margin-bottom:11px;
+  display:flex;gap:13px;align-items:flex-start;transition:.2s var(--ease)}
+.optcard.on{border-color:var(--violet);background:var(--grad-soft)}
+.optcard .oic{width:42px;height:42px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.optcard .oic svg{width:20px;height:20px;color:var(--violet-2)}
+.optcard h4{font-size:15px;font-weight:600}.optcard p{font-size:12.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+
+/* ---------- SCANNER ---------- */
+.scanwrap{position:absolute;inset:0;background:#000;display:flex;flex-direction:column}
+.scanview{flex:1;position:relative;overflow:hidden;background:
+  radial-gradient(60% 50% at 50% 45%,#141020,#000)}
+.scanframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:240px;height:240px;
+  border-radius:24px}
+.scanframe span{position:absolute;width:34px;height:34px;border:3px solid var(--violet)}
+.scanframe span:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:14px 0 0 0}
+.scanframe span:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 14px 0 0}
+.scanframe span:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 14px}
+.scanframe span:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 14px 0}
+.scanline{position:absolute;left:8px;right:8px;height:2px;background:linear-gradient(90deg,transparent,var(--violet),transparent);
+  top:8px;animation:scanmove 2.4s var(--ease) infinite;box-shadow:0 0 12px var(--violet)}
+@keyframes scanmove{0%,100%{top:8px}50%{top:230px}}
+.scanhead{padding:18px;text-align:center}.scanhead h3{font-size:16px;font-weight:600}.scanhead p{font-size:12.5px;color:var(--muted);margin-top:4px}
+.scandemo{padding:16px 16px calc(16px + env(safe-area-inset-bottom));background:#0a0a0e;border-top:1px solid var(--line)}
+.scandemo .lab{font-size:11px;color:var(--muted2);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px}
+.scandemo .btns{display:flex;gap:8px;flex-wrap:wrap}
+.scandemo .btns button{flex:1;min-width:calc(50% - 4px);height:42px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:500}
+.scanresult{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center;animation:flashIn .35s var(--ease)}
+@keyframes flashIn{from{opacity:0;transform:scale(1.1)}}
+.scanresult.valid{background:radial-gradient(circle at center,rgba(53,214,160,.28),rgba(0,0,0,.95))}
+.scanresult.invalid{background:radial-gradient(circle at center,rgba(251,91,120,.3),rgba(0,0,0,.95))}
+.scanresult.refunded{background:radial-gradient(circle at center,rgba(246,180,76,.26),rgba(0,0,0,.95))}
+.scanresult .big{width:110px;height:110px;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;animation:pop .5s var(--ease)}
+.scanresult.valid .big{background:var(--green)}.scanresult.invalid .big{background:var(--red)}.scanresult.refunded .big{background:var(--amber)}
+.scanresult .big svg{width:56px;height:56px;color:#000}
+.scanresult h2{font-family:var(--serif);font-size:38px;font-weight:700;letter-spacing:1px}
+.scanresult .rmeta{margin-top:16px;background:rgba(255,255,255,.08);border:1px solid var(--line2);border-radius:16px;padding:16px 20px;min-width:220px}
+.scanresult .rmeta .rr{display:flex;justify-content:space-between;gap:18px;padding:6px 0;font-size:14px}
+.scanresult .rmeta .rr b{font-weight:600}
+.scanresult .drinkbig{margin-top:14px;font-size:15px;font-weight:600}
+.scanresult .drinkbig b{color:var(--amber);font-size:19px}
+.scanresult button{margin-top:26px;height:48px;padding:0 30px;border-radius:14px;background:#fff;color:#000;font-weight:700;font-size:15px}
+
+/* ---------- tab bar ---------- */
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:50;height:78px;
+  background:var(--tabbar-grad);
+  backdrop-filter:blur(20px);border-top:1px solid var(--line);
+  display:flex;padding:8px 6px calc(6px + env(safe-area-inset-bottom))}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--muted2);transition:.25s var(--ease);position:relative}
+.tab svg{width:23px;height:23px}
+.tab span{font-size:10px;font-weight:500}
+.tab.on{color:var(--text)}
+.tab.on svg{color:var(--violet-2);filter:drop-shadow(0 0 8px rgba(168,85,247,.6))}
+.tab.on::before{content:"";position:absolute;top:-8px;width:22px;height:3px;border-radius:3px;background:var(--grad)}
+
+/* tab panels */
+.panel{position:absolute;inset:0 0 78px 0;overflow-y:auto;z-index:20;background:var(--bg);
+  padding-top:0;opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.panel.on{opacity:1;pointer-events:auto}
+.panel-head{padding:56px 18px 6px}
+.panel-head .k{font-size:12px;letter-spacing:2px;color:var(--violet-2);font-weight:600;text-transform:uppercase}
+.panel-head h1{font-family:var(--serif);font-size:34px;font-weight:600;margin-top:6px;line-height:1.05}
+.panel-body{padding:8px 18px 24px}
+
+/* discover */
+.feature{position:relative;height:400px;border-radius:22px;overflow:hidden;margin-bottom:16px;border:1px solid var(--line2)}
+.feature .img{position:absolute;inset:0;background:var(--evibe)}
+.feature .fade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,rgba(8,8,11,.9))}
+.feature .k{position:absolute;top:16px;left:16px;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);
+  border:1px solid var(--line2);border-radius:999px;padding:6px 13px;font-size:11px;font-weight:600;letter-spacing:1px}
+.feature .info{position:absolute;bottom:0;left:0;right:0;padding:20px}
+.feature .info h3{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1.05}
+.feature .info .sub{color:var(--muted);font-size:13.5px;margin-top:8px;display:flex;gap:10px;flex-wrap:wrap}
+.hscroll{display:flex;gap:12px;overflow-x:auto;margin:0 -18px;padding:0 18px 6px}
+.vcard{flex:none;width:170px}
+.vcard .img{height:200px;border-radius:16px;background:var(--evibe);position:relative;overflow:hidden;border:1px solid var(--line)}
+.vcard .img .st{position:absolute;top:8px;left:8px;font-size:10px;font-weight:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);padding:4px 8px;border-radius:999px;display:flex;align-items:center;gap:5px}
+.vcard h4{font-family:var(--serif);font-size:16px;font-weight:600;margin-top:9px}
+.vcard p{font-size:12px;color:var(--muted);margin-top:2px}
+.trend{display:flex;gap:13px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.trend .rk{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--muted2);width:26px;flex:none}
+.trend .img{width:54px;height:54px;border-radius:12px;background:var(--vibe);flex:none}
+.trend .ti{flex:1}.trend .ti h4{font-size:15px;font-weight:600}.trend .ti p{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* bookings */
+.segbar{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:4px;margin:6px 0 18px}
+.segbar button{flex:1;height:38px;border-radius:10px;font-size:13.5px;font-weight:600;color:var(--muted);transition:.2s}
+.segbar button.on{background:var(--grad);color:#fff}
+.bkcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.bkcard .stripe{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--grad)}
+.bkcard.table .stripe{background:linear-gradient(var(--amber),var(--magenta))}
+.bkcard .bh{display:flex;justify-content:space-between;gap:10px}
+.bkcard h4{font-family:var(--serif);font-size:18px;font-weight:600}
+.bkcard .type{font-size:11px;letter-spacing:1px;color:var(--violet-2);font-weight:600;text-transform:uppercase}
+.bkcard .when{font-size:12.5px;color:var(--muted);margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.bkcard .bkstatus{font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;flex:none;height:fit-content}
+.bkcard .bkstatus.ok{background:rgba(53,214,160,.15);color:var(--green)}
+.bkcard .bkstatus.pend{background:rgba(246,180,76,.15);color:var(--amber)}
+.bkcard .bkstatus.past{background:var(--surface2);color:var(--muted)}
+.bkcard .bkact{display:flex;gap:8px;margin-top:13px}
+.bkcard .bkact button{flex:1;height:40px;border-radius:11px;font-size:13px;font-weight:600;background:var(--surface2);border:1px solid var(--line2)}
+.bkcard .bkact button.pri{background:var(--grad);border:none}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .eic{width:64px;height:64px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 16px}
+
+/* profile / roles */
+.prof-hero{padding:56px 18px 10px;display:flex;align-items:center;gap:15px}
+.prof-hero .pav{width:66px;height:66px;border-radius:50%;background:var(--grad);display:grid;place-items:center;font-size:26px;font-weight:700;font-family:var(--serif)}
+.prof-hero h1{font-family:var(--serif);font-size:24px;font-weight:600}
+.prof-hero p{color:var(--muted);font-size:13px;margin-top:3px}
+.rolecard{background:var(--grad-soft);border:1px solid var(--line2);border-radius:18px;padding:16px;margin:8px 0 18px}
+.rolecard .rt{font-size:12px;color:var(--muted);margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.rolebtn{padding:13px;border-radius:13px;background:var(--surface);border:1px solid var(--line);text-align:left;transition:.2s}
+.rolebtn.on{border-color:var(--violet);background:var(--grad-soft)}
+.rolebtn .e{font-size:20px}.rolebtn h5{font-size:13.5px;font-weight:600;margin-top:7px}.rolebtn p{font-size:11px;color:var(--muted);margin-top:2px}
+.listrow{display:flex;align-items:center;gap:13px;padding:15px 0;border-bottom:1px solid var(--line)}
+.listrow .li{width:38px;height:38px;border-radius:11px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.listrow .li svg{width:18px;height:18px;color:var(--muted)}
+.listrow .lt{flex:1}.listrow .lt h4{font-size:14.5px;font-weight:500}
+.listrow .chev{color:var(--muted2)}
+
+/* dashboards */
+.dash{padding:56px 16px 30px}
+.dash-h{font-family:var(--serif);font-size:28px;font-weight:600;margin-bottom:4px}
+.dash-sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:14px}
+.kpi .kl{font-size:11.5px;color:var(--muted)}
+.kpi .kv{font-size:24px;font-weight:700;font-family:var(--serif);margin-top:6px}
+.kpi .kd{font-size:11px;margin-top:5px;font-weight:600}.kpi .kd.up{color:var(--green)}.kpi .kd.down{color:var(--red)}
+.dcard{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:11px}
+.dcard .dch{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}
+.dcard .dch h4{font-size:15px;font-weight:600}
+.approw{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.approw:last-child{border:0}
+.approw .ai{width:40px;height:40px;border-radius:11px;background:var(--evibe);flex:none}
+.approw .at{flex:1;min-width:0}.approw .at h5{font-size:14px;font-weight:600}.approw .at p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pill{font-size:10.5px;font-weight:600;padding:4px 9px;border-radius:999px}
+.pill.pend{background:rgba(246,180,76,.15);color:var(--amber)}
+.pill.ok{background:rgba(53,214,160,.15);color:var(--green)}
+.pill.rej{background:rgba(251,91,120,.15);color:var(--red)}
+.miniact{display:flex;gap:7px;margin-top:9px}
+.miniact button{flex:1;height:36px;border-radius:10px;font-size:12.5px;font-weight:600}
+.miniact .app{background:var(--grad);color:#fff}.miniact .rej{background:var(--surface2);border:1px solid var(--line2);color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:7px;height:110px;padding-top:10px}
+.bars .b{flex:1;background:var(--grad);border-radius:6px 6px 0 0;position:relative;min-height:6px;opacity:.85}
+.bars .b span{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted2)}
+
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);z-index:200;
+  background:var(--surface2);border:1px solid var(--line2);border-radius:12px;padding:11px 16px;font-size:13px;
+  box-shadow:var(--shadow);opacity:0;transition:.3s var(--ease);display:flex;align-items:center;gap:9px;pointer-events:none;max-width:90%}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast svg{width:16px;height:16px;color:var(--green);flex:none}
+.rolebtn .entertag{display:flex;align-items:center;gap:2px;font-size:10.5px;font-weight:600;color:var(--violet-2);margin-top:8px}
+.rolebtn .entertag svg{width:13px;height:13px}
+
+/* ================= PRO WORKSPACES ================= */
+.promode{position:absolute;inset:0;z-index:56;background:var(--bg);display:none;flex-direction:column}
+.promode.show{display:flex}
+.pro-head{padding:calc(14px + env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,var(--surface),var(--bg));display:flex;align-items:center;gap:12px;flex:none}
+.pro-head .badge{width:44px;height:44px;border-radius:13px;background:var(--grad);display:grid;place-items:center;font-size:22px;flex:none;box-shadow:0 8px 20px -8px rgba(168,85,247,.7)}
+.pro-head .pt{flex:1;min-width:0}
+.pro-head .pt .r{font-size:11px;letter-spacing:1.5px;color:var(--violet-2);font-weight:700;text-transform:uppercase}
+.pro-head .pt h1{font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pro-exit{height:38px;padding:0 13px;border-radius:11px;background:var(--surface2);border:1px solid var(--line2);
+  font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px;flex:none}
+.pro-exit svg{width:15px;height:15px}
+.pro-body{flex:1;overflow-y:auto;padding:16px 16px 24px}
+.pro-nav{flex:none;display:flex;padding:8px 6px calc(8px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+  background:var(--bg);backdrop-filter:blur(20px)}
+.pro-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted2);transition:.2s;position:relative}
+.pro-nav button svg{width:22px;height:22px}
+.pro-nav button span{font-size:9.5px;font-weight:500}
+.pro-nav button.on{color:var(--text)}
+.pro-nav button.on svg{color:var(--violet-2);filter:drop-shadow(0 0 8px rgba(168,85,247,.6))}
+.pro-nav button.on::before{content:"";position:absolute;top:-8px;width:20px;height:3px;border-radius:3px;background:var(--grad)}
+.pro-h{font-family:var(--serif);font-size:24px;font-weight:600;margin:2px 0 3px}
+.pro-sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.sec-h{font-family:var(--serif);font-size:17px;font-weight:600;margin:22px 0 11px;display:flex;justify-content:space-between;align-items:center}
+.sec-h .cnt{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface2);padding:3px 9px;border-radius:999px}
+.tinybtn{height:32px;padding:0 12px;border-radius:9px;background:var(--grad);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px}
+.tinybtn.sec{background:var(--surface2);border:1px solid var(--line2);color:var(--text)}
+.tinybtn svg{width:13px;height:13px}
+/* toggle switch */
+.sw{width:44px;height:26px;border-radius:999px;background:var(--surface2);border:1px solid var(--line2);position:relative;transition:.2s;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--muted);transition:.2s}
+.sw.on{background:var(--grad);border-color:transparent}.sw.on::after{left:20px;background:#fff}
+.ctrlrow{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.ctrlrow .ct{flex:1}.ctrlrow .ct h4{font-size:14px;font-weight:600}.ctrlrow .ct p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.venuerow{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid var(--line)}
+.venuerow .vi{width:40px;height:40px;border-radius:11px;flex:none}
+.venuerow .vt{flex:1;min-width:0}.venuerow .vt h4{font-size:14.5px;font-weight:600}.venuerow .vt p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.swatches{display:flex;gap:10px;margin:10px 0 4px;flex-wrap:wrap}
+.swatch{width:38px;height:38px;border-radius:11px;border:2px solid transparent;cursor:pointer}
+.swatch.on{border-color:#fff;box-shadow:0 0 0 2px var(--bg),0 0 0 4px currentColor}
+.tblmini{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}
+.tblmini .tn{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:13px;flex:none}
+.tblmini .tn.av{background:rgba(53,214,160,.2);border:1.5px solid var(--green);color:#bff6e2}
+.tblmini .tn.so{background:rgba(251,91,120,.2);border:1.5px solid var(--red);color:#f6a5b3}
+
+/* ================= SEARCH TAB ================= */
+.search-inline{margin:14px 0 0}
+.search-inline input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:14.5px}
+.search-inline .clearx{width:26px;height:26px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;flex:none;border:1px solid var(--line)}
+.search-inline .clearx svg{width:12px;height:12px;color:var(--muted)}
+.search-inline .fbtn{width:30px;height:30px;border-radius:9px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.search-inline .fbtn svg{width:16px;height:16px;color:var(--muted)}
+.rescount{font-size:12px;letter-spacing:1.5px;color:var(--muted2);font-weight:600;text-transform:uppercase;margin:18px 0 12px}
+.vresult{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px;margin-bottom:12px;transition:transform .18s var(--ease),background .2s;animation:resIn .35s var(--ease) backwards}
+@keyframes resIn{from{opacity:0;transform:translateY(10px)}}
+.vresult:active{transform:scale(.985)}
+.vresult .vimg{width:74px;height:74px;border-radius:14px;flex:none;background:var(--vibe);position:relative;overflow:hidden}
+.vresult .vimg .ic{position:absolute;inset:0;display:grid;place-items:center;font-size:26px}
+.vresult .vinfo{flex:1;min-width:0}
+.vresult .vinfo h3{font-family:var(--serif);font-size:20px;font-weight:600;line-height:1.05}
+.vresult .vinfo .cat{font-size:11px;letter-spacing:1px;color:var(--violet-2);font-weight:600;text-transform:uppercase;margin-top:5px}
+.vresult .vinfo .meta{font-size:12.5px;color:var(--muted);margin-top:7px}
+.vresult .vinfo .st{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:8px;padding:3px 9px;border-radius:999px;background:var(--surface3);border:1px solid var(--line);color:var(--text)}
+.vresult .vinfo .st .d{width:6px;height:6px;border-radius:50%}
+.skel{display:flex;gap:14px;align-items:center;padding:12px;margin-bottom:12px;border:1px solid var(--line);border-radius:18px}
+.skel .s1{width:74px;height:74px;border-radius:14px;flex:none}
+.skel .s2{flex:1}.skel .s2 div{height:12px;border-radius:6px;margin-bottom:9px}
+.shimmer{background:linear-gradient(90deg,var(--skel1) 25%,var(--skel2) 50%,var(--skel1) 75%);background-size:200% 100%;animation:sh 1.15s linear infinite}
+@keyframes sh{from{background-position:200% 0}to{background-position:-200% 0}}
+.nores{text-align:center;padding:46px 20px;color:var(--muted)}
+.nores .eic{width:60px;height:60px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;margin:0 auto 14px}
+.nores h3{font-family:var(--serif);font-size:19px;color:var(--text);margin-bottom:7px}
+.nores .acts{display:flex;gap:10px;justify-content:center;margin-top:18px}
+/* advanced filter sheet */
+.fbackdrop{position:absolute;inset:0;z-index:70;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.3s}
+.fbackdrop.show{opacity:1;pointer-events:auto}
+.fsheet{position:absolute;left:0;right:0;bottom:0;z-index:71;background:var(--bg);border-radius:24px 24px 0 0;border-top:1px solid var(--line2);
+  padding:10px 18px calc(20px + env(safe-area-inset-bottom));transform:translateY(101%);transition:transform .4s var(--ease);max-height:84%;overflow-y:auto;box-shadow:var(--shadow)}
+.fsheet.show{transform:translateY(0)}
+.fsheet .fgrab{width:40px;height:4px;border-radius:999px;background:var(--line2);margin:2px auto 14px}
+.fsheet h3{font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:2px}
+.fgroup{margin-top:18px}
+.fgroup .fl{font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:9px;text-transform:uppercase;letter-spacing:.6px}
+.fopts{display:flex;flex-wrap:wrap;gap:8px}
+.fopt{height:34px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
+.fopt.on{background:var(--grad-soft);border-color:var(--violet);color:var(--text)}
+.factions{display:flex;gap:10px;margin-top:24px}
+/* signed/unsigned + options */
+.intbadge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
+.intbadge.sig{background:rgba(53,214,160,.16);color:var(--green)}
+.intbadge.uns{background:var(--surface3);color:var(--muted);border:1px solid var(--line)}
+.intbadge.warn{background:rgba(246,180,76,.16);color:var(--amber)}
+.optbtn{width:38px;height:38px;border-radius:11px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;flex:none;color:var(--muted)}
+.optbtn svg{width:18px;height:18px}
+.menurow{display:flex;align-items:center;gap:12px;width:100%;padding:14px 8px;border-radius:12px;font-size:15px;font-weight:500;color:var(--text);text-align:left}
+.menurow:active{background:var(--surface2)}
+.menurow svg{width:19px;height:19px;color:var(--violet-2);flex:none}
+.menurow.danger{color:var(--red)}.menurow.danger svg{color:var(--red)}
+.segfull{display:flex;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:4px;margin-bottom:6px}
+.segfull button{flex:1;height:44px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted)}
+.segfull button.on{background:var(--grad);color:#fff}
+.reqnote{font-size:12px;color:var(--muted);line-height:1.45;margin:2px 0 6px;display:flex;gap:7px;align-items:flex-start}
+.reqnote.warn{color:var(--amber)}
+.reqnote svg{width:16px;height:16px;flex:none;margin-top:1px}
+/* location system */
+.destslot{display:block}
+.destbtn{display:inline-flex;align-items:center;gap:6px;font-family:var(--serif);font-weight:600;font-size:17px;color:var(--text);padding:3px 4px;max-width:100%}
+.destbtn .pin{width:15px;height:15px;color:var(--violet-2);flex:none}
+.destbtn .cv{width:16px;height:16px;color:var(--muted);flex:none}
+.destbtn .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.locrow{display:flex;align-items:center;gap:13px;padding:14px 2px;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.locrow .lflag{width:36px;height:36px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);flex:none}
+.locrow .lt{flex:1;min-width:0}.locrow .lt h4{font-size:15.5px;font-weight:600}.locrow .lt p{font-size:12px;color:var(--muted);margin-top:2px}
+.locrow .chk{color:var(--violet-2);flex:none}.locrow .chk svg{width:20px;height:20px}
+.locgroup{border-bottom:1px solid var(--line)}
+.locgroup .gh{display:flex;align-items:center;gap:10px;padding:15px 2px;cursor:pointer;width:100%;text-align:left}
+.locgroup .gh h3{flex:1;font-size:13.5px;font-weight:700;letter-spacing:.3px;color:var(--text)}
+.locgroup .gh .cx{font-size:11px;color:var(--muted2)}
+.locgroup .gh .cv{width:18px;height:18px;color:var(--muted2);transition:transform .25s var(--ease)}
+.locgroup.open .gh .cv{transform:rotate(180deg)}
+.locgroup .gbody{display:none;padding-left:6px}
+.locgroup.open .gbody{display:block}
+.recents{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.recchip{flex:none;height:36px;padding:0 15px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:500;display:flex;align-items:center;gap:7px;color:var(--text)}
+.recchip.on{background:var(--grad);border-color:transparent;color:#fff}
+.uselocation{display:flex;align-items:center;gap:11px;width:100%;padding:15px;border-radius:14px;background:var(--grad-soft);border:1px solid var(--line2);margin:4px 0 8px}
+.uselocation .li{width:38px;height:38px;border-radius:11px;background:var(--surface);display:grid;place-items:center;flex:none}
+.uselocation .li svg{width:19px;height:19px;color:var(--violet-2)}
+.uselocation .lt{flex:1;text-align:left}.uselocation .lt h4{font-size:14.5px;font-weight:600}.uselocation .lt p{font-size:11.5px;color:var(--muted);margin-top:2px}
+.cityempty{text-align:center;padding:64px 26px}
+.cityempty .eic{width:74px;height:74px;border-radius:22px;background:var(--grad-soft);border:1px solid var(--line2);display:grid;place-items:center;margin:0 auto 18px}
+.cityempty .eic svg{width:32px;height:32px;color:var(--violet-2)}
+.cityempty h3{font-family:var(--serif);font-size:22px;font-weight:600;margin-bottom:9px}
+.cityempty p{font-size:13.5px;color:var(--muted);line-height:1.5;max-width:300px;margin:0 auto}
+.mapempty{position:absolute;inset:0;z-index:6;display:none;flex-direction:column;align-items:center;justify-content:center;background:var(--page-grad);padding-bottom:78px}
+.mapempty.show{display:flex}
+.evmeta .price svg{width:13px;height:13px}
+.exthint{font-size:12px;color:var(--muted);margin-top:11px;display:flex;gap:7px;align-items:flex-start;line-height:1.45}
+.exthint svg{width:15px;height:15px;flex:none;margin-top:1px}
+</style>
+</head>
+<body>
+<div id="phone"><div id="app"></div></div>
+
+<script>
+/* ---- icon set (inline SVG, currentColor) ---- */
+const _s='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
+const IC={
+ search:_s+'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+ sliders:_s+'<line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/></svg>',
+ map:_s+'<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>',
+ compass:_s+'<circle cx="12" cy="12" r="9"/><polygon points="16 8 14 14 8 16 10 10" fill="currentColor" stroke="none"/></svg>',
+ ticket:_s+'<path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/><line x1="13" y1="6" x2="13" y2="18" stroke-dasharray="2 2"/></svg>',
+ ticket2:_s+'<path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4Z"/></svg>',
+ user:_s+'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+ users:_s+'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.5a3.5 3.5 0 0 1 0 6.9"/><path d="M18 20a6.5 6.5 0 0 0-3-5.5"/></svg>',
+ locate:_s+'<circle cx="12" cy="12" r="7"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none"/></svg>',
+ bookmark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17l-6-4-6 4Z"/></svg>',
+ pin2:'<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="opacity:.8"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>',
+ info:_s+'<circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/></svg>',
+ back:_s+'<polyline points="15 18 9 12 15 6"/></svg>',
+ music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="opacity:.8"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M9 18V5l12-2v13"/></svg>',
+ table:_s+'<rect x="3" y="4" width="18" height="12" rx="2"/><line x1="7" y1="20" x2="7" y2="16"/><line x1="17" y1="20" x2="17" y2="16"/></svg>',
+ nav:_s+'<polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+ clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="opacity:.8"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+ check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+ x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>',
+ lock:_s+'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+ apple:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 13c0-2 1.6-3 1.7-3-1-1.4-2.4-1.6-2.9-1.6-1.2-.1-2.4.7-3 .7-.6 0-1.6-.7-2.6-.7-1.3 0-2.6.8-3.3 2-1.4 2.5-.4 6.1 1 8.1.7 1 1.4 2.1 2.5 2 1-.04 1.3-.6 2.5-.6s1.5.6 2.6.6 1.7-1 2.4-2c.5-.8.8-1.5.8-1.6-.02 0-1.9-.7-1.9-3Zm-2-6.4c.5-.7.9-1.6.8-2.6-.8 0-1.8.5-2.4 1.2-.5.6-1 1.5-.8 2.4.9.1 1.8-.4 2.4-1Z"/></svg>',
+ wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="17" cy="14" r="1.3" fill="currentColor"/></svg>',
+ rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 3 3 8 8 8"/></svg>',
+ euro:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M17 6a6 6 0 1 0 0 12"/><line x1="4" y1="10" x2="13" y2="10"/><line x1="4" y1="14" x2="12" y2="14"/></svg>',
+ bottle:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2h4v3l1 3v13a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V8l1-3Z"/><line x1="9" y1="12" x2="15" y2="12"/></svg>',
+ card:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
+ percent:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/></svg>',
+ link:_s+'<path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1"/></svg>',
+ plus:_s+'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+ send:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+ flame:'<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 2s5 4 5 9a5 5 0 0 1-10 0c0-1 .5-2 .5-2S9 12 10 12c0-3 2-6 2-10Z"/></svg>',
+ chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="9 18 15 12 9 6"/></svg>',
+ qr:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="18" y1="14" x2="18" y2="18"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="14" y1="21" x2="18" y2="21"/></svg>',
+ transfer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 2 21 6 17 10"/><path d="M21 6H8"/><polyline points="7 22 3 18 7 14"/><path d="M3 18h13"/></svg>',
+ bell:_s+'<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>',
+ shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5Z"/></svg>',
+ chart:_s+'<line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="6"/><rect x="11" y="8" width="3" height="10"/><rect x="16" y="4" width="3" height="14"/></svg>',
+ sun:_s+'<circle cx="12" cy="12" r="4.5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="6.3" y2="6.3"/><line x1="17.7" y1="17.7" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.3" y2="17.7"/><line x1="17.7" y1="6.3" x2="19.1" y2="4.9"/></svg>',
+ ext:_s+'<path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M20 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5"/></svg>',
+ dots:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>',
+ edit:_s+'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+};
+/* =========================================================================
+   NOCTURNE MILANO — self-contained nightlife platform prototype
+   ========================================================================= */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=(h)=>{const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstElementChild;};
+const CURRENCY={EUR:{s:'€',pre:true},GBP:{s:'£',pre:true},CZK:{s:'Kč',pre:false},HUF:{s:'Ft',pre:false},RSD:{s:'RSD',pre:false},PLN:{s:'zł',pre:false}};
+function currencyFor(slug){const d=DEST(slug);return CURRENCY[(d&&d.currency)||'EUR']||CURRENCY.EUR;}
+const money=(n)=>{const c=currencyFor(typeof S!=='undefined'?S.dest:'milan');const v=Number(n).toLocaleString('en-US');return c.pre?c.s+v:v+' '+c.s;};
+/* ---- countries & nightlife destinations (venues added separately) ---- */
+const DESTINATIONS=[
+ {country:'Spain',cc:'ES',currency:'EUR',name:'Madrid',slug:'madrid',tz:'Europe/Madrid',lat:40.4168,lng:-3.7038,zoom:12,published:true},
+ {country:'Spain',cc:'ES',currency:'EUR',name:'Barcelona',slug:'barcelona',tz:'Europe/Madrid',lat:41.3874,lng:2.1686,zoom:12,published:true},
+ {country:'Spain',cc:'ES',currency:'EUR',name:'Mallorca',slug:'mallorca',tz:'Europe/Madrid',lat:39.5696,lng:2.6502,zoom:11,published:true,note:'Palma'},
+ {country:'Spain',cc:'ES',currency:'EUR',name:'Ibiza',slug:'ibiza',tz:'Europe/Madrid',lat:38.9067,lng:1.4206,zoom:12,published:true,note:'Ibiza Town'},
+ {country:'France',cc:'FR',currency:'EUR',name:'Paris',slug:'paris',tz:'Europe/Paris',lat:48.8566,lng:2.3522,zoom:12,published:true},
+ {country:'France',cc:'FR',currency:'EUR',name:'Lyon',slug:'lyon',tz:'Europe/Paris',lat:45.7640,lng:4.8357,zoom:12,published:true},
+ {country:'France',cc:'FR',currency:'EUR',name:'Marseille',slug:'marseille',tz:'Europe/Paris',lat:43.2965,lng:5.3698,zoom:12,published:true},
+ {country:'United Kingdom',cc:'GB',currency:'GBP',name:'London',slug:'london',tz:'Europe/London',lat:51.5074,lng:-0.1278,zoom:12,published:true},
+ {country:'United Kingdom',cc:'GB',currency:'GBP',name:'Manchester',slug:'manchester',tz:'Europe/London',lat:53.4808,lng:-2.2426,zoom:12,published:true},
+ {country:'United Kingdom',cc:'GB',currency:'GBP',name:'Newcastle',slug:'newcastle',tz:'Europe/London',lat:54.9783,lng:-1.6178,zoom:12,published:true},
+ {country:'United Kingdom',cc:'GB',currency:'GBP',name:'Glasgow',slug:'glasgow',tz:'Europe/London',lat:55.8642,lng:-4.2518,zoom:12,published:true},
+ {country:'Ireland',cc:'IE',currency:'EUR',name:'Dublin',slug:'dublin',tz:'Europe/Dublin',lat:53.3498,lng:-6.2603,zoom:12,published:true},
+ {country:'Netherlands',cc:'NL',currency:'EUR',name:'Amsterdam',slug:'amsterdam',tz:'Europe/Amsterdam',lat:52.3676,lng:4.9041,zoom:12,published:true},
+ {country:'Netherlands',cc:'NL',currency:'EUR',name:'Rotterdam',slug:'rotterdam',tz:'Europe/Amsterdam',lat:51.9244,lng:4.4777,zoom:12,published:true},
+ {country:'Netherlands',cc:'NL',currency:'EUR',name:'Eindhoven',slug:'eindhoven',tz:'Europe/Amsterdam',lat:51.4416,lng:5.4697,zoom:12,published:true},
+ {country:'Germany',cc:'DE',currency:'EUR',name:'Berlin',slug:'berlin',tz:'Europe/Berlin',lat:52.5200,lng:13.4050,zoom:12,published:true},
+ {country:'Germany',cc:'DE',currency:'EUR',name:'Munich',slug:'munich',tz:'Europe/Berlin',lat:48.1351,lng:11.5820,zoom:12,published:true},
+ {country:'Czech Republic',cc:'CZ',currency:'CZK',name:'Prague',slug:'prague',tz:'Europe/Prague',lat:50.0755,lng:14.4378,zoom:12,published:true},
+ {country:'Hungary',cc:'HU',currency:'HUF',name:'Budapest',slug:'budapest',tz:'Europe/Budapest',lat:47.4979,lng:19.0402,zoom:12,published:true},
+ {country:'Serbia',cc:'RS',currency:'RSD',name:'Belgrade',slug:'belgrade',tz:'Europe/Belgrade',lat:44.7866,lng:20.4489,zoom:12,published:true},
+ {country:'Poland',cc:'PL',currency:'PLN',name:'Kraków',slug:'krakow',tz:'Europe/Warsaw',lat:50.0647,lng:19.9450,zoom:12,published:true},
+ {country:'Portugal',cc:'PT',currency:'EUR',name:'Porto',slug:'porto',tz:'Europe/Lisbon',lat:41.1579,lng:-8.6291,zoom:12,published:true},
+ {country:'Portugal',cc:'PT',currency:'EUR',name:'Lisbon',slug:'lisbon',tz:'Europe/Lisbon',lat:38.7223,lng:-9.1393,zoom:12,published:true},
+ {country:'Greece',cc:'GR',currency:'EUR',name:'Athens',slug:'athens',tz:'Europe/Athens',lat:37.9838,lng:23.7275,zoom:12,published:true},
+ {country:'Italy',cc:'IT',currency:'EUR',name:'Milan',slug:'milan',tz:'Europe/Rome',lat:45.4642,lng:9.1900,zoom:12,published:true}
+];
+const DEST=(slug)=>DESTINATIONS.find(d=>d.slug===slug);
+function countryOrder(){const seen=[];DESTINATIONS.forEach(d=>{if(!seen.includes(d.country))seen.push(d.country);});return seen;}
+function destVenueCount(slug){return VENUES.filter(v=>v.city===slug).length;}
+function destEventCount(slug){return VENUES.filter(v=>v.city===slug).reduce((a,v)=>a+v.events.length,0);}
+const rid=()=>'NCT-'+Math.random().toString(36).slice(2,8).toUpperCase()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+
+/* ---- vibe gradients (stand in for atmospheric photography) ---- */
+const VIBES={
+ techno:'radial-gradient(120% 90% at 30% 10%,#3b1d6e,#160a2b 55%),linear-gradient(160deg,#2a0f4d,#0a0518)',
+ house:'radial-gradient(120% 90% at 70% 15%,#7a2bbf,#2a1150 60%),linear-gradient(160deg,#3d1670,#120727)',
+ rave:'radial-gradient(100% 80% at 50% 0%,#1b3a8f,#0a1230 60%),linear-gradient(160deg,#141a4d,#08040f)',
+ latin:'radial-gradient(120% 90% at 30% 10%,#b4315f,#3a0f36 60%),linear-gradient(160deg,#7a1f52,#1a0720)',
+ rooftop:'radial-gradient(120% 90% at 60% 5%,#c77dff,#3a2a6e 55%),linear-gradient(160deg,#5b3fa8,#150d2e)',
+ jazz:'radial-gradient(120% 90% at 40% 10%,#a05a2c,#2a1220 60%),linear-gradient(160deg,#5a3a1a,#150a10)',
+ speak:'radial-gradient(120% 90% at 50% 5%,#5a4b8f,#1a1330 60%),linear-gradient(160deg,#332863,#0d0820)',
+ edm:'radial-gradient(100% 80% at 50% 0%,#d946ef,#4a1080 55%),linear-gradient(160deg,#7b1fa8,#180830)'
+};
+
+/* ---- Milan venues ---- */
+const VENUES=[
+ {id:'alcatraz',name:'Alcatraz',type:'Live Club',hood:'Bullona',dist:'3.1 km',x:29,y:26,vibe:'techno',
+  status:'open',open:'Open · closes 04:00',price:'€€',genres:['Techno','House','Rock'],tags:['Techno','Warehouse','Big room'],
+  atmosphere:'Industrial cathedral of sound',saved:false,
+  desc:'A converted 1930s factory that became Milan’s most storied large-format club. Two rooms, a monumental main floor and a raw metal balcony overlooking the crowd.',
+  tickets:{from:20,left:'Selling fast'},tablesText:'12 tables · from €400',
+  events:[
+   {id:'a1',title:'Warehouse: Amelie Lens',art:'Amelie Lens · Kobosil',day:'20',mon:'SEP',time:'23:30–05:00',vibe:'techno',genres:['Techno'],
+    desc:'Belgian techno titan Amelie Lens takes the main room for a rare all-night set. Kobosil warms up the balcony.',
+    tiers:[{n:'Early Bird',p:20,left:0,d:'Sold out'},{n:'General',p:28,left:120,d:'Standard entry'},{n:'Priority',p:38,left:24,d:'Skip-the-line + coat check'}]},
+   {id:'a2',title:'Rock the Cage',art:'Live + DJ set',day:'26',mon:'SEP',time:'22:00–03:00',vibe:'techno',genres:['Rock','House'],
+    desc:'The Friday institution — live band into a house DJ set until close.',
+    tiers:[{n:'General',p:18,left:200,d:'Standard entry'},{n:'Priority',p:26,left:40,d:'Skip-the-line'}]}
+  ]},
+ {id:'bluenote',name:'Blue Note',type:'Jazz Club',hood:'Isola',dist:'2.4 km',x:56,y:20,vibe:'jazz',
+  status:'open',open:'Open · sets 21:00 & 23:00',price:'€€€',genres:['Jazz','Latin','Soul'],tags:['Jazz','Live','Intimate'],
+  atmosphere:'Candlelit, seated, world-class',saved:true,
+  desc:'The European outpost of the legendary New York jazz institution. Seated dinner-and-show room with impeccable acoustics.',
+  tickets:{from:35,left:'Limited'},tablesText:'Table seating only · from €60pp',
+  events:[
+   {id:'b1',title:'Latin Nights: Roberto Fonseca',art:'Roberto Fonseca Trio',day:'21',mon:'SEP',time:'21:00 / 23:00',vibe:'latin',genres:['Latin','Jazz'],
+    desc:'Cuban piano virtuoso Roberto Fonseca returns with his trio for two seated sets.',
+    tiers:[{n:'Balcony',p:35,left:30,d:'Second-tier seating'},{n:'Floor',p:55,left:18,d:'Main floor, close to stage'},{n:'Front Table',p:85,left:6,d:'Front row + welcome drink'}]}
+  ]},
+ {id:'terrazza',name:'Terrazza Aperol',type:'Rooftop Bar',hood:'Duomo',dist:'1.2 km',x:48,y:52,vibe:'rooftop',
+  status:'open',open:'Open · aperitivo till 22:00',price:'€€€',genres:['House','Lounge'],tags:['Rooftop','Aperitivo','Views'],
+  atmosphere:'Golden-hour over the Duomo',saved:false,
+  desc:'The most photographed terrace in Milan, looking straight onto the Duomo spires. Aperitivo culture at altitude, into a smooth house night.',
+  tickets:{from:0,left:'Free entry'},tablesText:'18 tables · from €250',
+  events:[
+   {id:'t1',title:'Sunset Sessions',art:'Deep house · resident DJs',day:'19',mon:'SEP',time:'18:00–01:00',vibe:'rooftop',genres:['House','Lounge'],
+    desc:'Golden hour aperitivo rolling into deep house as the Duomo lights up.',
+    tiers:[{n:'Guest List',p:0,left:300,d:'Free before 20:00'},{n:'Aperitivo + Entry',p:25,left:80,d:'Signature spritz included'}]}
+  ]},
+ {id:'amnesia',name:'Amnesia',type:'Club',hood:'Lambrate',dist:'4.6 km',x:74,y:44,vibe:'edm',
+  status:'soon',open:'Opens 23:00',price:'€€',genres:['EDM','House','Techno'],tags:['EDM','Big room','Lasers'],
+  atmosphere:'Ibiza energy in Milan',saved:false,
+  desc:'A slice of the White Isle in Milan’s east. Enormous LED walls, a laser rig, and a program built around big-room house and EDM headliners.',
+  tickets:{from:22,left:'Available'},tablesText:'20 tables · from €350',
+  events:[
+   {id:'am1',title:'Elrow Milano',art:'Elrow crew · confetti storm',day:'20',mon:'SEP',time:'23:00–06:00',vibe:'edm',genres:['EDM','House'],
+    desc:'The full Elrow production lands — dancers, inflatables and tonnes of confetti.',
+    tiers:[{n:'Early',p:22,left:0,d:'Sold out'},{n:'General',p:30,left:150,d:'Standard entry'},{n:'VIP',p:45,left:35,d:'Fast lane + VIP deck'}]}
+  ]},
+ {id:'magazzini',name:'Magazzini Generali',type:'Warehouse Rave',hood:'Porta Romana',dist:'2.6 km',x:52,y:70,vibe:'rave',
+  status:'soon',open:'Opens 00:00',price:'€',genres:['Techno','Industrial','Acid'],tags:['Rave','Industrial','All night'],
+  atmosphere:'Raw all-night dance temple',saved:false,
+  desc:'Raw industrial warehouse turned all-night dance temple. Strobes, fog, and the hardest sound system in town.',
+  tickets:{from:15,left:'Available'},tablesText:'8 tables · from €300',
+  events:[
+   {id:'mg1',title:'Blackout: Acid Test',art:'I Hate Models · SPFDJ',day:'21',mon:'SEP',time:'00:00–07:00',vibe:'rave',genres:['Techno','Acid'],
+    desc:'Seven hours of uncompromising industrial techno. No phones on the floor.',
+    tiers:[{n:'Presale',p:15,left:60,d:'Cheapest entry'},{n:'General',p:22,left:180,d:'Standard entry'},{n:'Late',p:28,left:99,d:'After 02:00'}]}
+  ]},
+ {id:'hollywood',name:'Hollywood',type:'Club',hood:'Corso Como',dist:'2.1 km',x:44,y:33,vibe:'house',
+  status:'off',open:'Opens tomorrow 23:30',price:'€€€',genres:['House','Latin','Commercial'],tags:['See & be seen','House','VIP'],
+  atmosphere:'Milan’s glamour institution',saved:false,
+  desc:'Four decades of Milanese glamour on Corso Como. Fashion crowd, bottle service, and a house-leaning main room.',
+  tickets:{from:30,left:'Guest list open'},tablesText:'24 tables · from €500',
+  events:[
+   {id:'h1',title:'Fashion Week Closing',art:'Special guests TBA',day:'27',mon:'SEP',time:'23:30–04:00',vibe:'house',genres:['House','Latin'],
+    desc:'The unofficial close of Fashion Week. Strict guest list.',
+    tiers:[{n:'Guest List',p:30,left:100,d:'Before 01:00'},{n:'Standard',p:40,left:60,d:'Standard entry'}]}
+  ]},
+ {id:'plastic',name:'Plastic',type:'Speakeasy Club',hood:'Porta Vittoria',dist:'3.4 km',x:64,y:60,vibe:'speak',
+  status:'off',open:'Opens Fri 23:59',price:'€€',genres:['House','Techno','Cult'],tags:['Speakeasy','Cult','LGBTQ+'],
+  atmosphere:'Legendary, unpredictable, no photos',saved:false,
+  desc:'The cult institution beloved by Warhol-era Milan. Door policy with a personality; a floor with no rules.',
+  tickets:{from:20,left:'Door only'},tablesText:'No tables',
+  events:[
+   {id:'p1',title:'PLASTIC Classics',art:'Nicola Guiducci',day:'22',mon:'SEP',time:'23:59–05:00',vibe:'speak',genres:['House','Cult'],
+    desc:'Resident Nicola Guiducci plays the records that built the legend.',
+    tiers:[{n:'Door',p:20,left:120,d:'Cash or card at door'}]}
+  ]},
+ {id:'tunnel',name:'Tunnel',type:'Techno Club',hood:'Centrale',dist:'2.9 km',x:60,y:38,vibe:'techno',
+  status:'open',open:'Open · closes 05:00',price:'€€',genres:['Techno','Minimal'],tags:['Techno','Underground','Newly Opened'],
+  atmosphere:'Under the railway arches',newly:true,saved:false,
+  desc:'Literally beneath the tracks of Milano Centrale. A single dark room, a serious rig, and a purist techno booking policy.',
+  tickets:{from:18,left:'Available'},tablesText:'6 tables · from €280',
+  events:[
+   {id:'tn1',title:'Subterranean',art:'Dax J',day:'20',mon:'SEP',time:'23:00–05:00',vibe:'techno',genres:['Techno'],
+    desc:'Berghain-favourite Dax J brings the hard stuff underground.',
+    tiers:[{n:'Presale',p:18,left:70,d:'Limited'},{n:'General',p:25,left:140,d:'Standard entry'}]}
+  ]}
+];
+/* place venues at their real Milan coordinates from the OSM-derived data */
+VENUES.forEach(v=>{if(typeof VENUE_POS!=='undefined'&&VENUE_POS[v.id]){v.x=VENUE_POS[v.id].x;v.y=VENUE_POS[v.id].y;}});
+/* commercial state: signed (native) vs unsigned (Eventbrite). Default signed; per-club Eventbrite URL. */
+VENUES.forEach(v=>{if(v.signed===undefined)v.signed=true;if(v.eventbrite===undefined)v.eventbrite=null;if(v.city===undefined)v.city='milan';});
+(()=>{const f=id=>VENUES.find(v=>v.id===id);
+      const p=f('plastic');if(p){p.signed=false;p.eventbrite='https://www.eventbrite.com/e/plastic-milano-classics-tickets';}
+      const b=f('bluenote');if(b){b.signed=false;b.eventbrite=null;/* demo: unsigned with a missing link */}})();
+const VENUE=(id)=>VENUES.find(v=>v.id===id);
+const EVENT=(id)=>{for(const v of VENUES)for(const e of v.events)if(e.id===id)return {ev:e,venue:v};return null;};
+
+/* ---- floor plans per venue (generated but plausible) ---- */
+function floorplan(v){
+ const zones=[
+  {c:'dance',t:'Dance floor',x:30,y:38,w:40,h:34},
+  {c:'dj',t:'DJ booth',x:38,y:8,w:24,h:14},
+  {c:'bar',t:'Bar',x:4,y:44,w:14,h:30},
+  {c:'stage',t:'VIP',x:80,y:40,w:16,h:34}
+ ];
+ const tables=[];let n=1;
+ const rows=[{y:18,area:'VIP Balcony',min:800,seats:8,bottles:'2 premium bottles + mixers'},
+             {y:78,area:'Floor-side',min:400,seats:6,bottles:'1 bottle + mixers'},
+             {y:60,area:'Bar-side',min:300,seats:4,bottles:'Table minimum spend'}];
+ rows.forEach((r,ri)=>{
+  const cnt=ri===0?4:5;
+  for(let i=0;i<cnt;i++){
+   const sold=Math.random()<0.4;
+   tables.push({id:'T'+n,label:''+n,area:r.area,x:6+i*(76/(cnt-1))* (cnt>1?1:0)+ (cnt===1?40:0),y:r.y,
+     seats:r.seats,min:r.min+ (i%2?50:0),bottles:r.bottles,sold});
+   n++;
+  }
+ });
+ return {zones,tables};
+}
+
+/* ---- app state ---- */
+const S={
+ tab:'map', role:'guest', filters:new Set(), selected:null,
+ cart:{venue:null,event:null,tier:null,qty:1,drinks:0},
+ guest:{first:'',last:'',age:'',email:''},
+ tickets:[],           // purchased tickets {id,payload,ev,venue,tier,qty,drinks,used,refunded}
+ reservations:[],      // table reservations
+ group:null,           // active group payment
+ bkSeg:'upcoming',
+ mode:'guest',         // guest | venue | organizer | door | god
+ proTab:null,
+ proVenue:'alcatraz',  // the venue a manager is operating
+ dest:'milan',         // active destination slug
+ recentDests:['milan'],
+ searchQ:'',           // Search tab query
+ adv:{hoods:new Set(),types:new Set(),prices:new Set(),genres:new Set(),dist:0}, // advanced filters
+ _searchScroll:0
+};
+/* ---- shared pro data ---- */
+let PROPOSALS=[
+ {id:'pr1',title:'Reggaeton Fever',org:'LatinHeat',venueId:'alcatraz',day:'28',mon:'SEP',time:'23:00–04:00',genres:['Latin'],tier:{n:'General',p:22,q:400},state:'pending_venue',vibe:'latin'},
+ {id:'pr2',title:'Techno Basement',org:'NightForm Collective',venueId:'alcatraz',day:'04',mon:'OCT',time:'23:30–05:00',genres:['Techno'],tier:{n:'Presale',p:18,q:300},state:'pending_venue',vibe:'techno'},
+ {id:'pr3',title:'Elrow Milano',org:'NightForm Collective',venueId:'amnesia',day:'20',mon:'SEP',time:'23:00–06:00',genres:['EDM'],tier:{n:'General',p:30,q:600},state:'pending_venue',vibe:'edm'}
+];
+let ORG_APPS=[
+ {id:'oa1',name:'NightForm Collective',info:'12 past events · Milano',state:'pending'},
+ {id:'oa2',name:'Underground Milano',info:'New · unverified',state:'pending'},
+ {id:'oa3',name:'LatinHeat',info:'8 past events · verified',state:'pending'}
+];
+const APPSETTINGS={accent:'#8B5CF6', requireAccount:false, surge:false};
+/* ---- theme ---- */
+function isLight(){return document.documentElement.getAttribute('data-theme')==='light';}
+function setTheme(light){
+ const root=document.documentElement;
+ document.body.classList.add('theming');
+ if(light)root.setAttribute('data-theme','light'); else root.removeAttribute('data-theme');
+ try{localStorage.setItem('nocturne-theme',light?'light':'dark');}catch(e){}
+ clearTimeout(setTheme._t);setTheme._t=setTimeout(()=>document.body.classList.remove('theming'),440);
+}
+
+/* =======================================================================
+   MOUNT
+   ======================================================================= */
+const APP=$('#app');
+APP.innerHTML=`
+ <div id="mapscreen">
+   <div id="world">
+     ${milanSVG()}
+     <div id="markers"></div>
+   </div>
+   <div class="maptitle">MILANO</div>
+   <div class="attrib">© OpenStreetMap · Comune di Milano (NIL)</div>
+   <button class="iconbtn geo" id="geo" title="Recenter">${IC.locate}</button>
+   <div class="mapempty" id="mapempty"></div>
+ </div>
+
+ <div class="panel" id="panel-search"></div>
+ <div class="panel" id="panel-discover"></div>
+ <div class="panel" id="panel-bookings"></div>
+ <div class="panel" id="panel-profile"></div>
+
+ <div class="topbar" id="topbar">
+   <div class="destslot" style="margin-bottom:10px"></div>
+   <div class="searchrow">
+     <div class="search">${IC.search}<input id="q" placeholder="What are you looking for?"></div>
+     <button class="iconbtn" id="filterbtn">${IC.sliders}</button>
+   </div>
+   <div class="chips" id="chips"></div>
+   <div id="surgebar" class="hidden" style="margin-top:9px;background:var(--grad-soft);border:1px solid var(--line2);border-radius:11px;padding:8px 12px;font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px">🔥 High demand tonight — prices and tables are moving fast.</div>
+ </div>
+
+ <div class="sheet" id="sheet"></div>
+
+ <div class="tabbar" id="tabbar">
+   ${tabBtn('search','Search',IC.search)}
+   ${tabBtn('map','Map',IC.map)}
+   ${tabBtn('discover','Discover',IC.compass)}
+   ${tabBtn('bookings','Bookings',IC.ticket)}
+   ${tabBtn('profile','Profile',IC.user)}
+ </div>
+
+ <div class="overlay" id="overlay"></div>
+ <div class="overlay modal" id="overlay2"></div>
+ <div id="pro" class="promode"></div>
+ <div class="fbackdrop" id="fbackdrop"></div>
+ <div class="fsheet" id="fsheet"></div>
+ <div class="fbackdrop" id="gmback"></div>
+ <div class="fsheet" id="gmsheet"></div>
+ <div class="toast" id="toast"></div>
+`;
+
+function tabBtn(id,label,icon){return `<button class="tab" data-tab="${id}">${icon}<span>${label}</span></button>`;}
+
+/* init is called at the very end, after all const declarations */
+
+/* filter chips */
+const FILTERS=[['Open Tonight','open'],['Tables Available','tables'],['Techno','Techno'],['House','House'],['EDM','EDM'],['Latin','Latin'],['Rooftop','Rooftop'],['Speakeasy','Speakeasy'],['Newly Opened','newly']];
+function renderChips(){
+ $('#chips').innerHTML=FILTERS.map(([label,key])=>{
+   const on=S.filters.has(key); const dot=key==='open'?'<i class="dot"></i>':'';
+   return `<button class="chip ${on?'on':''}" data-f="${key}">${dot}${label}</button>`;
+ }).join('');
+ $$('#chips .chip').forEach(c=>c.onclick=()=>{const k=c.dataset.f;S.filters.has(k)?S.filters.delete(k):S.filters.add(k);renderChips();renderMarkers();});
+}
+
+/* ---- markers ---- */
+function filtersPass(v){
+ if(v.published===false)return false;   // God mode can unpublish a venue
+ if(v.city!==S.dest)return false;       // only the active destination's venues
+ for(const f of S.filters){
+   if(f==='open'&&v.status!=='open')return false;
+   if(f==='tables'&&(v.tablesText||'').includes('No tables'))return false;
+   if(f==='newly'&&!v.newly)return false;
+   if(['Techno','House','EDM','Latin','Rooftop','Speakeasy'].includes(f)){
+     const hay=[...v.genres,...v.tags,v.type].join(' ');
+     if(!hay.toLowerCase().includes(f.toLowerCase()))return false;
+   }
+ }
+ const a=S.adv;
+ if(a){
+   if(a.hoods.size&&!a.hoods.has(v.hood))return false;
+   if(a.types.size&&!a.types.has(v.type))return false;
+   if(a.prices.size&&!a.prices.has(v.price))return false;
+   if(a.genres.size&&![...a.genres].some(g=>v.genres.includes(g)))return false;
+   if(a.dist){const km=parseFloat(v.dist)||99;if(km>a.dist)return false;}
+ }
+ return true;
+}
+function matchVenue(v,q){
+ if(!q)return true;
+ const hay=[v.name,v.hood,v.type,v.atmosphere,...v.genres,...v.tags,...v.events.flatMap(e=>[e.title,e.art])].join(' ').toLowerCase();
+ return hay.includes(q);
+}
+function venuePasses(v){return filtersPass(v)&&matchVenue(v,($('#q')?.value||'').trim().toLowerCase());}
+function renderMarkers(){
+ const m=$('#markers');m.innerHTML='';
+ VENUES.filter(venuePasses).forEach((v,i)=>{
+  const live=v.status==='open'?'':v.status==='soon'?'soon':'off';
+  const node=el(`<div class="marker ${S.selected===v.id?'sel':''}" data-v="${v.id}" style="left:${v.x}%;top:${v.y}%;animation-delay:${i*.05}s">
+     <div class="pin" style="--vibe:${VIBES[v.vibe]}"><span class="ic">${venueEmoji(v.vibe)}</span><span class="live ${live}"></span></div>
+     <div class="tail"></div><div class="lbl">${v.name}</div>
+   </div>`);
+  node.onclick=()=>selectVenue(v.id);
+  m.appendChild(node);
+ });
+}
+function venueEmoji(v){return {techno:'🔊',house:'🪩',rave:'⚡',latin:'💃',rooftop:'🌃',jazz:'🎷',speak:'🥃',edm:'🎆'}[v]||'🎵';}
+
+$('#q').addEventListener('input',()=>{renderMarkers();});
+$('#filterbtn').onclick=()=>toast('Filters applied live from the chips above');
+$('#geo').onclick=()=>{resetMapView();toast('Centred on Milan');};
+
+/* ---- tab switching ---- */
+$$('#tabbar .tab').forEach(t=>t.onclick=()=>setTab(t.dataset.tab));
+/* ======================= LOCATION SYSTEM ======================= */
+function destName(){return (DEST(S.dest)||{}).name||'Milan';}
+function cityHasContent(slug){slug=slug||S.dest;return VENUES.some(v=>v.city===slug&&v.published!==false);}
+function destControlHTML(){return `<button class="destbtn" data-destbtn>
+   <svg class="pin" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+   <span class="nm">${destName()}</span>
+   <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>`;}
+function refreshDestControls(){$$('.destslot').forEach(s=>s.innerHTML=destControlHTML());$$('[data-destbtn]').forEach(b=>b.onclick=()=>openLocationSelector());}
+function cityEmptyHTML(){return `<div class="cityempty"><div class="eic">${IC.map}</div>
+   <h3>We're getting this city ready.</h3>
+   <p>Clubs and events in ${destName()} will appear here soon. Explore another city in the meantime.</p>
+   <button class="btn pri" style="max-width:240px;margin:22px auto 0" data-choosecity>Choose another city</button></div>`;}
+function bindChooseCity(){$$('[data-choosecity]').forEach(b=>b.onclick=()=>openLocationSelector());}
+function applyMapForDest(){
+ const me=$('#mapempty');if(!me)return;
+ renderMarkers();
+ if(cityHasContent()){me.classList.remove('show');me.innerHTML='';}
+ else{me.innerHTML=cityEmptyHTML();me.classList.add('show');bindChooseCity();}
+}
+function saveDestPrefs(){try{localStorage.setItem('nocturne-dest',S.dest);localStorage.setItem('nocturne-recents',JSON.stringify(S.recentDests));}catch(e){}}
+function applyDestination(slug){
+ S.dest=slug;
+ S.recentDests=[slug,...S.recentDests.filter(s=>s!==slug)].slice(0,5);
+ saveDestPrefs();
+ refreshDestControls();
+ $('#overlay2').classList.remove('show');
+ setTab(S.tab);            // re-render current tab for the new destination
+ toast('Now browsing '+destName());
+}
+function changeDestination(slug){
+ if(slug===S.dest){$('#overlay2').classList.remove('show');return;}
+ const d=DEST(slug);
+ confirmSheet('Switch to '+d.name+'?','Your map, search and discover will update to '+d.name+', '+d.country+'. You can change it again anytime.','Switch',()=>applyDestination(slug));
+}
+function haversine(a,b,c,d){const R=6371,dLat=(c-a)*Math.PI/180,dLng=(d-b)*Math.PI/180,la1=a*Math.PI/180,la2=c*Math.PI/180;
+ const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x));}
+function useMyLocation(){
+ if(!navigator.geolocation){toast('Location not available on this device');return;}
+ toast('Requesting your location…');
+ navigator.geolocation.getCurrentPosition(pos=>{
+   const {latitude,longitude}=pos.coords;
+   const on=DESTINATIONS.filter(d=>d.published!==false);
+   let best=null,bd=1e9;on.forEach(d=>{const dist=haversine(latitude,longitude,d.lat,d.lng);if(dist<bd){bd=dist;best=d;}});
+   if(!best||bd>400){toast('No supported destination nearby — pick one below');return;}
+   confirmSheet('Use '+best.name+'?','That\'s the closest supported destination to you (~'+Math.round(bd)+' km). Use it as your location?','Use '+best.name,()=>applyDestination(best.slug));
+ },err=>{toast('Location permission denied — pick a city below');},{timeout:8000});
+}
+function openLocationSelector(){
+ const ov=$('#overlay2');S._locq='';
+ renderLocationSelector();
+ ov.classList.add('show');
+}
+function renderLocationSelector(){
+ const ov=$('#overlay2');const q=(S._locq||'').trim().toLowerCase();
+ const cur=DEST(S.dest);
+ const groups=countryOrder().map(country=>{
+   const list=DESTINATIONS.filter(d=>d.country===country&&d.published!==false).filter(d=>{
+     if(!q)return true;return d.name.toLowerCase().includes(q)||d.country.toLowerCase().includes(q);
+   });
+   return {country,list};
+ }).filter(g=>g.list.length);
+ const recents=S.recentDests.map(DEST).filter(d=>d&&d.published!==false);
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="loc-back">${IC.back}</button><div class="ovtitle">Choose your city</div></div>
+   <div class="flowbody" style="padding-bottom:40px">
+     <div class="step-sub" style="margin:0 0 6px">Currently browsing</div>
+     <div style="font-family:var(--serif);font-size:26px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px">${cur?cur.name:'Milan'} <span style="font-size:13px;font-family:var(--sans);color:var(--muted);font-weight:400">${cur?cur.country:''}</span></div>
+     <div class="search" style="margin-bottom:14px">${IC.search}<input id="loc-q" placeholder="Search cities and destinations" value="${(S._locq||'').replace(/"/g,'&quot;')}" autocomplete="off"></div>
+     <button class="uselocation" id="loc-use"><div class="li">${IC.locate}</div><div class="lt"><h4>Use my location</h4><p>Find the closest supported destination</p></div>${IC.chev}</button>
+     ${!q&&recents.length?`<div class="step-sub" style="margin:16px 0 8px">Recent</div><div class="recents">${recents.map(d=>`<button class="recchip ${d.slug===S.dest?'on':''}" data-pick="${d.slug}">${IC.pin2}${d.name}</button>`).join('')}</div>`:''}
+     <div style="margin-top:14px">${groups.length?groups.map(g=>locGroupHTML(g,q)).join(''):emptyLine('No destinations match “'+q+'”.')}</div>
+   </div>`;
+ ov.scrollTop=0;
+ $('#loc-back').onclick=()=>ov.classList.remove('show');
+ const inp=$('#loc-q');inp.oninput=()=>{S._locq=inp.value;renderLocationSelector();$('#loc-q').focus();};
+ $('#loc-use').onclick=useMyLocation;
+ $$('#overlay2 [data-pick]').forEach(b=>b.onclick=()=>changeDestination(b.dataset.pick));
+ $$('#overlay2 .locgroup .gh').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+}
+function locGroupHTML(g,q){
+ const open=!!q||g.list.some(d=>d.slug===S.dest);
+ return `<div class="locgroup ${open?'open':''}">
+   <button class="gh"><h3>${g.country}</h3><span class="cx">${g.list.length}</span>
+     <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+   <div class="gbody">${g.list.map(d=>`<button class="locrow" data-pick="${d.slug}">
+     <div class="lflag">${d.cc}</div><div class="lt"><h4>${d.name}</h4><p>${d.country}${d.note?' · '+d.note:''}</p></div>
+     ${d.slug===S.dest?`<span class="chk">${IC.check}</span>`:''}</button>`).join('')}</div></div>`;
+}
+function setTab(tab){
+ S.tab=tab;
+ $$('#tabbar .tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===tab));
+ const mapOn=tab==='map';
+ $('#mapscreen').style.display=mapOn?'block':'none';
+ if(mapOn){sizeWorld();applyMapForDest();}
+ $('#surgebar')&&$('#surgebar').classList.toggle('hidden',!(mapOn&&APPSETTINGS.surge&&cityHasContent()));
+ $('#topbar').classList.toggle('hidden',!mapOn);
+ $('#sheet').classList.toggle('hidden',!mapOn||!cityHasContent());
+ $$('.panel').forEach(p=>p.classList.remove('on'));
+ if(tab==='search'){renderSearch();$('#panel-search').classList.add('on');}
+ if(tab==='discover'){renderDiscover();$('#panel-discover').classList.add('on');}
+ if(tab==='bookings'){renderBookings();$('#panel-bookings').classList.add('on');}
+ if(tab==='profile'){renderProfile();$('#panel-profile').classList.add('on');}
+ refreshDestControls();
+}
+
+/* ---- select venue -> bottom sheet ---- */
+function selectVenue(id){
+ S.selected=id;renderMarkers();
+ const v=VENUE(id);const sh=$('#sheet');
+ const live=v.status==='open'?'':v.status==='soon'?'soon':'off';
+ const statusTxt=v.status==='open'?'Open now':v.status==='soon'?'Opens soon':'Closed';
+ sh.innerHTML=`<div class="sheet-card" style="--vibe:${VIBES[v.vibe]}">
+   <div class="beam"></div>
+   <div class="grabber" id="sv-grab"></div>
+   <div class="sheet-top">
+     <div><div class="vname">${v.name}<span class="spark">✦</span></div><div class="vtype">${v.type.toUpperCase()}</div></div>
+     <div class="sheet-btns">
+       <button class="save ${v.saved?'on':''}" id="sv-save">${IC.bookmark}</button>
+       <button class="save" id="sv-close" aria-label="Close">${IC.x}</button>
+     </div>
+   </div>
+   <div class="statusrow">
+     <span class="status ${live}"><span class="dot"></span>${statusTxt}</span>
+     <span class="status">${IC.pin2}${v.dist}</span>
+     <span class="status">${v.price}</span>
+   </div>
+   <div class="vdesc">${v.desc}</div>
+   <div class="tags">${v.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+   <div class="sheet-actions">
+     <button class="btn sec evt" id="sv-open">${IC.info}Venue</button>
+     <button class="btn pri evt" id="sv-events">Events <span class="ecount">${v.events.length}</span></button>
+   </div>
+ </div>`;
+ sh.classList.add('show');
+ $('#sv-save').onclick=(e)=>{e.stopPropagation();v.saved=!v.saved;$('#sv-save').classList.toggle('on',v.saved);toast(v.saved?'Saved to your venues':'Removed');};
+ $('#sv-close').onclick=(e)=>{e.stopPropagation();closeSheet();};
+ $('#sv-open').onclick=()=>openVenue(id);
+ $('#sv-events').onclick=()=>openVenue(id,true);
+ enableSheetSwipe();
+}
+function closeSheet(){const sh=$('#sheet');sh.classList.remove('show');sh.style.transform='';S.selected=null;renderMarkers();}
+function enableSheetSwipe(){
+ const card=$('#sheet .sheet-card');if(!card)return;
+ let sy=0,dy=0,drag=false;
+ card.addEventListener('pointerdown',e=>{if(e.target.closest('button')||e.target.closest('.tags'))return;drag=true;sy=e.clientY;dy=0;});
+ card.addEventListener('pointermove',e=>{if(!drag)return;dy=Math.max(0,e.clientY-sy);$('#sheet').style.transform='translateY('+dy+'px)';});
+ window.addEventListener('pointerup',()=>{if(!drag)return;drag=false;const sh=$('#sheet');sh.style.transform='';if(dy>80)closeSheet();},{once:false});
+}
+
+/* ======================= VENUE PROFILE ======================= */
+function openVenue(id,scrollEvents){
+ const v=VENUE(id);const ov=$('#overlay');
+ const live=v.status==='open'?'':v.status==='soon'?'soon':'off';
+ const statusTxt=v.status==='open'?v.open:v.status==='soon'?v.open:v.open;
+ ov.innerHTML=`
+  <div class="ovback"><button class="roundbtn" id="v-back">${IC.back}</button>
+    <div style="flex:1"></div><button class="roundbtn" id="v-save2">${IC.bookmark}</button></div>
+  <div class="hero" style="--vibe:${VIBES[v.vibe]}">
+    <div class="img"></div><div class="beam"></div><div class="grain"></div><div class="fade"></div>
+    <div class="dots"><i class="on"></i><i></i><i></i></div>
+    <div class="hero-info">
+      <div class="vname">${v.name}<span class="spark">✦</span></div>
+      <div class="loc">${IC.pin2}${v.hood} · ${v.dist} away · ${v.type}</div>
+    </div>
+  </div>
+  <div class="vbody">
+    <div class="metarow">
+      <span class="status ${live}"><span class="dot"></span>${statusTxt}</span>
+      <span class="status">${v.price}</span>
+      <span class="status">${IC.music}${v.atmosphere}</span>
+    </div>
+    <div class="tags">${v.genres.map(g=>`<span class="tag">${g}</span>`).join('')}</div>
+    <p class="vdesc" style="margin-top:16px">${v.desc}</p>
+
+    <div class="section-h">Upcoming events</div>
+    ${v.events.map(e=>eventCardHTML(e,v.signed===false)).join('')}
+
+    <div class="section-h">Book</div>
+    ${v.signed!==false ? `
+    <div class="availbar">
+      <div class="availpill"><div class="t">${IC.ticket2}Tickets</div><div class="v">${v.tickets.from===0?'Free':'from '+money(v.tickets.from)}</div><div style="font-size:11px;color:var(--green);margin-top:4px">${v.tickets.left}</div></div>
+      <div class="availpill"><div class="t">${IC.table}Tables</div><div class="v">${v.tablesText.split(' · ')[1]||v.tablesText}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${v.tablesText.split(' · ')[0]}</div></div>
+    </div>
+    <div class="sheet-actions" style="margin-top:12px">
+      <button class="btn sec" id="v-tickets">${IC.ticket2}Get tickets</button>
+      <button class="btn pri" id="v-table" ${v.tablesText.includes('No tables')?'disabled style=opacity:.4':''}>${IC.table}Book a table</button>
+    </div>`
+    : (v.eventbrite ? `
+    <button class="btn pri wide" id="v-ext">Tickets &amp; tables ${IC.ext}</button>
+    <p class="exthint">${IC.ext}You'll be taken to Eventbrite to purchase tickets or reserve tables for this venue.</p>`
+    : `
+    <div class="optcard" style="opacity:.85"><div class="oic">${IC.info}</div><div><h4>Booking not available online</h4><p>Tickets for this venue aren't available to book here yet — check back soon.</p></div></div>`)}
+
+    <div class="section-h">Location</div>
+    <div class="mini-map">${milanSVG(true,v)}</div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:10px;display:flex;gap:6px">${IC.pin2}${v.hood}, Milano · ${v.dist} from you</p>
+    <button class="btn ghost wide" style="margin-top:12px" id="v-dir">${IC.nav}Get directions</button>
+  </div>`;
+ ov.classList.add('show');
+ $('#v-back').onclick=()=>ov.classList.remove('show');
+ const s2=$('#v-save2');if(v.saved)s2.style.color='var(--violet-2)';
+ s2.onclick=()=>{v.saved=!v.saved;s2.style.color=v.saved?'var(--violet-2)':'#fff';toast(v.saved?'Saved':'Removed');};
+ $$('#overlay .evcard').forEach(c=>c.onclick=()=>bookEvent(c.dataset.ev));
+ $('#v-tickets')&&($('#v-tickets').onclick=()=>openTicketFlow(v.events[0].id));
+ const vt=$('#v-table');if(vt&&!v.tablesText.includes('No tables'))vt.onclick=()=>openTableFlow(id);
+ $('#v-ext')&&($('#v-ext').onclick=()=>goExternal(v.eventbrite));
+ $('#v-dir').onclick=()=>toast('Opening directions to '+v.name);
+ if(scrollEvents)setTimeout(()=>$('#overlay .section-h')?.scrollIntoView({behavior:'smooth'}),350);
+}
+function eventCardHTML(e,unsigned){
+ const min=Math.min(...e.tiers.map(t=>t.p));
+ const priceLine=unsigned
+   ? `<div class="price" style="color:var(--violet-2);display:flex;align-items:center;gap:5px">Tickets &amp; tables ${IC.ext}</div>`
+   : `<div class="price">${min===0?'Free entry':'from '+money(min)}</div>`;
+ return `<div class="evcard" data-ev="${e.id}">
+   <div class="evthumb" style="--evibe:${VIBES[e.vibe]}"><div class="d"><b>${e.day}</b><s>${e.mon}</s></div></div>
+   <div class="evmeta"><h4>${e.title}</h4><div class="art">${e.art}</div>
+     <div class="sub"><span>${IC.clock}${e.time}</span><span>${e.genres.join(' · ')}</span></div>
+     ${priceLine}</div>
+ </div>`;
+}
+
+/* ======================= TICKET FLOW ======================= */
+/* ---- booking gate: signed = native, unsigned = Eventbrite ---- */
+function eventbriteFor(v,ev){return (ev&&ev.eventbrite)||v.eventbrite||null;}
+function goExternal(url){try{window.open(url,'_blank','noopener,noreferrer');}catch(e){location.href=url;}}
+function bookEvent(evId){
+ const {ev,venue}=EVENT(evId);
+ if(venue.signed!==false){openTicketFlow(evId);return;}
+ const url=eventbriteFor(venue,ev);
+ if(url){goExternal(url);toast('Opening Eventbrite — '+venue.name);}
+ else toast('Booking unavailable for this event');
+}
+function bookVenue(vid){
+ const v=VENUE(vid);
+ if(v.signed!==false){openTicketFlow(v.events[0].id);return;}
+ const url=v.eventbrite||eventbriteFor(v,v.events[0]);
+ if(url){goExternal(url);toast('Opening Eventbrite — '+v.name);}
+ else toast('Booking unavailable');
+}
+function openTicketFlow(evId){
+ const {ev,venue}=EVENT(evId);
+ S.cart={venue:venue.id,event:ev.id,tier:ev.tiers.find(t=>t.left>0)?.n||ev.tiers[0].n,qty:1,drinks:0};
+ renderTicketStep('select');
+ $('#overlay2').classList.add('show');
+}
+function curTier(){const {ev}=EVENT(S.cart.event);return ev.tiers.find(t=>t.n===S.cart.tier);}
+function cartTotal(){const t=curTier();return (t.p*S.cart.qty)+(S.cart.drinks*5*S.cart.qty);}
+function renderTicketStep(step){
+ const {ev,venue}=EVENT(S.cart.event);const ov=$('#overlay2');
+ let body='';
+ if(step==='select'){
+  body=`<div class="flowbody">
+    <div class="evthumb" style="--evibe:${VIBES[ev.vibe]};width:100%;height:150px;border-radius:16px;margin-bottom:16px"></div>
+    <div class="step-h">${ev.title}</div>
+    <div class="step-sub">${venue.name} · ${ev.day} ${ev.mon} · ${ev.time}</div>
+    <p class="vdesc" style="margin-bottom:20px">${ev.desc}</p>
+    <div class="section-h" style="margin-top:6px">Choose ticket</div>
+    ${ev.tiers.map(t=>`<div class="tier ${S.cart.tier===t.n?'on':''} ${t.left===0?'sold':''}" data-t="${t.n}" ${t.left===0?'style=opacity:.5':''}>
+       <div><h4>${t.n}</h4><div class="d">${t.d}</div>${t.left>0&&t.left<50?`<div class="left">Only ${t.left} left</div>`:''}</div>
+       <div style="display:flex;align-items:center;gap:14px"><div class="r"><b>${t.p===0?'Free':money(t.p)}</b></div>
+       <div class="radio"></div></div></div>`).join('')}
+
+    <div class="section-h">Quantity</div>
+    <div class="rowline" style="border:0">
+      <div class="lt"><h4>Tickets</h4><p>Max 8 per order</p></div>
+      <div class="stepper"><button id="qdec">−</button><span class="n">${S.cart.qty}</span><button id="qinc">+</button></div>
+    </div>
+
+    <div class="section-h">Add drinks</div>
+    <div class="rowline" style="border:0">
+      <div class="lt"><h4>Extra drink vouchers</h4><p>€5 each · max 2 per ticket · redeemed at the bar</p></div>
+      <div class="stepper"><button id="ddec">−</button><span class="n">${S.cart.drinks}</span><button id="dinc">+</button></div>
+    </div>
+  </div>
+  <div class="footer-cta">
+    <div class="totline"><s>${S.cart.qty} × ${S.cart.tier}${S.cart.drinks?` + ${S.cart.drinks*S.cart.qty} drinks`:''}</s><b>${cartTotal()===0?'Free':money(cartTotal())}</b></div>
+    <button class="btn pri wide" id="to-checkout">Continue to checkout</button>
+  </div>`;
+ }
+ if(step==='checkout'){
+  const reqAcc=APPSETTINGS.requireAccount;
+  body=`<div class="flowbody">
+    <div class="step-h">Checkout</div>
+    <div class="step-sub">${reqAcc?'An account is required to purchase (set by the platform).':'No account needed — your QR ticket is emailed instantly.'}</div>
+    <div class="field row2"><div><label>First name</label><input id="g-first" value="${S.guest.first}" placeholder="Mario"></div>
+      <div><label>Last name</label><input id="g-last" value="${S.guest.last}" placeholder="Rossi"></div></div>
+    <div class="field row2"><div><label>Age</label><input id="g-age" type="number" value="${S.guest.age}" placeholder="18+"></div>
+      <div><label>Email</label><input id="g-email" type="email" value="${S.guest.email}" placeholder="you@email.com"></div></div>
+    ${reqAcc?`<div class="field"><label>Create password (account required)</label><input id="g-pass" type="password" placeholder="••••••••"></div>`:''}
+    <div class="section-h">Payment</div>
+    <div class="cardface"><div class="brand"><span style="font-size:12px;color:var(--muted)">Card</span><span style="font-family:var(--serif);font-style:italic">VISA</span></div>
+      <div class="field" style="margin:0"><input placeholder="0000 0000 0000 0000" inputmode="numeric"></div>
+      <div class="field row2" style="margin-top:11px;margin-bottom:0"><div><input placeholder="MM / YY"></div><div><input placeholder="CVC"></div></div>
+    </div>
+    <div class="summary">
+      <div class="l"><span>${S.cart.qty} × ${S.cart.tier}</span><span>${money(curTier().p*S.cart.qty)}</span></div>
+      ${S.cart.drinks?`<div class="l"><span>${S.cart.drinks*S.cart.qty} × drink voucher</span><span>${money(S.cart.drinks*5*S.cart.qty)}</span></div>`:''}
+      <div class="l"><span>Booking fee</span><span>Free</span></div>
+      <div class="l tot"><span>Total</span><span>${cartTotal()===0?'Free':money(cartTotal())}</span></div>
+    </div>
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="do-pay">${IC.lock}Pay ${cartTotal()===0?'— free entry':money(cartTotal())}</button></div>`;
+ }
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="tf-back">${IC.back}</button><div class="ovtitle">${step==='select'?'Tickets':'Secure checkout'}</div></div>${body}`;
+ ov.scrollTop=0;
+ $('#tf-back').onclick=()=>{step==='checkout'?renderTicketStep('select'):ov.classList.remove('show');};
+ if(step==='select'){
+  $$('#overlay2 .tier').forEach(t=>{if(!t.classList.contains('sold'))t.onclick=()=>{S.cart.tier=t.dataset.t;renderTicketStep('select');};});
+  $('#qdec').onclick=()=>{S.cart.qty=Math.max(1,S.cart.qty-1);renderTicketStep('select');};
+  $('#qinc').onclick=()=>{S.cart.qty=Math.min(8,S.cart.qty+1);renderTicketStep('select');};
+  $('#ddec').onclick=()=>{S.cart.drinks=Math.max(0,S.cart.drinks-1);renderTicketStep('select');};
+  $('#dinc').onclick=()=>{S.cart.drinks=Math.min(2,S.cart.drinks+1);renderTicketStep('select');};
+  $('#to-checkout').onclick=()=>renderTicketStep('checkout');
+ }else{
+  ['first','last','age','email'].forEach(k=>{$('#g-'+k).oninput=e=>S.guest[k]=e.target.value;});
+  $('#do-pay').onclick=()=>{
+    if(!S.guest.first||!S.guest.email){toast('Add your name and email to continue');return;}
+    if(APPSETTINGS.requireAccount&&!($('#g-pass')&&$('#g-pass').value)){toast('Set a password — an account is required');return;}
+    completePurchase();
+  };
+ }
+}
+function completePurchase(){
+ const {ev,venue}=EVENT(S.cart.event);const t=curTier();
+ const tk={id:rid(),payload:JSON.stringify({t:rid(),ev:ev.id,tier:t.n,dr:S.cart.drinks}),
+   ev,venue,tier:t.n,qty:S.cart.qty,drinks:S.cart.drinks,used:false,refunded:false,ts:Date.now()};
+ S.tickets.push(tk);
+ renderSuccess(tk);
+}
+function renderSuccess(tk){
+ const ov=$('#overlay2');
+ ov.innerHTML=`<div class="success">
+   <div class="checkwrap">${IC.check}</div>
+   <div class="step-h" style="font-size:24px">You’re on the list</div>
+   <div class="step-sub" style="margin-bottom:0">Confirmation sent to ${S.guest.email||'your email'}</div>
+   <div class="qrcard"><div class="qr" id="qrbox"></div>
+     <div class="qmeta"><div class="ev">${tk.ev.title}</div>
+       <div class="dt">${tk.venue.name} · ${tk.ev.day} ${tk.ev.mon} · ${tk.ev.time}</div>
+       <span class="tier">${tk.tier}${tk.qty>1?' × '+tk.qty:''}</span>
+       ${tk.drinks?`<div class="drinks">🍸 ${tk.drinks} extra drink voucher${tk.drinks>1?'s':''} included</div>`:''}
+     </div></div>
+   <div class="wallets">
+     <button class="wallet" id="w-apple">${IC.apple}Apple Wallet</button>
+     <button class="wallet g" id="w-google">${IC.wallet}Google Wallet</button>
+   </div>
+   <button class="btn pri wide" style="max-width:290px;margin-top:18px" id="s-done">View in Bookings</button>
+   <button class="btn ghost wide" style="max-width:290px;margin-top:10px" id="s-more">Back to map</button>
+ </div>`;
+ renderQR($('#qrbox'),tk.payload);
+ $('#w-apple').onclick=()=>toast('Pass added to Apple Wallet');
+ $('#w-google').onclick=()=>toast('Pass added to Google Wallet');
+ $('#s-done').onclick=()=>{ov.classList.remove('show');$('#overlay').classList.remove('show');setTab('bookings');};
+ $('#s-more').onclick=()=>{ov.classList.remove('show');$('#overlay').classList.remove('show');};
+}
+function renderQR(box,payload){
+ try{
+   const qr=qrcode(0,'M');qr.addData(payload);qr.make();
+   box.innerHTML=qr.createSvgTag({cellSize:5,margin:0,scalable:true});
+   const svg=box.querySelector('svg');if(svg){svg.style.width='100%';svg.style.height='100%';}
+ }catch(e){box.innerHTML='<div style="color:#000;font-size:12px">QR unavailable</div>';}
+}
+
+/* ======================= TABLE FLOW (3D) ======================= */
+let sceneRot={x:54,z:0};
+function openTableFlow(vid){
+ const v=VENUE(vid);const fp=floorplan(v);v._fp=fp;
+ const ov=$('#overlay');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="t-back">${IC.back}</button><div class="ovtitle">${v.name} · Tables</div></div>
+  <div class="floorwrap" id="floorwrap">
+    <div class="floorlegend">
+      <span><i style="background:var(--green)"></i>Available</span>
+      <span><i style="background:var(--red)"></i>Taken</span>
+      <span><i style="background:var(--violet)"></i>Selected</span>
+    </div>
+    <div class="scene" id="scene">
+      <div class="floorplane">
+        ${fp.zones.map(z=>`<div class="zone ${z.c}" style="left:${z.x}%;top:${z.y}%;width:${z.w}%;height:${z.h}%">${z.t}</div>`).join('')}
+        ${fp.tables.map(t=>`<div class="tbl ${t.sold?'sold':''}" data-t="${t.id}"
+            style="left:${t.x}%;top:${t.y}%;width:14%;height:13%">${t.label}<div class="h"></div></div>`).join('')}
+      </div>
+    </div>
+    <div class="floorhint">${IC.rotate}Drag to rotate · pinch to zoom · tap a table</div>
+  </div>
+  <div class="vbody" style="padding-top:16px" id="table-panel">
+    <div class="step-h" style="font-size:22px">Pick your table</div>
+    <div class="step-sub">${v.tablesText} · minimum spend applies</div>
+    <div class="tags">${['Dance floor','DJ booth','Bar','VIP','Balcony'].map(a=>`<span class="tag">${a}</span>`).join('')}</div>
+    <p class="vdesc" style="margin-top:16px">Tap any green table on the plan above to see its capacity, minimum spend and what’s included.</p>
+  </div>`;
+ ov.classList.add('show');
+ sceneRot={x:54,z:0};applyScene();
+ $('#t-back').onclick=()=>ov.classList.remove('show');
+ $$('#scene .tbl').forEach(t=>{if(!t.classList.contains('sold'))t.onclick=(e)=>{e.stopPropagation();selectTable(v,t.dataset.t);};});
+ enableSceneDrag();
+}
+let sceneScale=1;
+function applyScene(){$('#scene').style.transform=`translate(-50%,-50%) rotateX(${sceneRot.x}deg) rotateZ(${sceneRot.z}deg) scale(${sceneScale})`;}
+function enableSceneDrag(){
+ const w=$('#floorwrap');let drag=false,px,py,pinch=0;
+ w.onpointerdown=e=>{drag=true;px=e.clientX;py=e.clientY;w.setPointerCapture(e.pointerId);};
+ w.onpointermove=e=>{if(!drag)return;const dx=e.clientX-px,dy=e.clientY-py;px=e.clientX;py=e.clientY;
+   sceneRot.z+=dx*0.4;sceneRot.x=Math.max(28,Math.min(78,sceneRot.x-dy*0.3));applyScene();};
+ w.onpointerup=()=>drag=false;
+ w.onwheel=e=>{e.preventDefault();sceneScale=Math.max(.7,Math.min(1.8,sceneScale-e.deltaY*0.001));applyScene();};
+}
+function selectTable(v,tid){
+ $$('#scene .tbl').forEach(x=>x.classList.toggle('sel',x.dataset.t===tid));
+ const t=v._fp.tables.find(x=>x.id===tid);
+ const p=$('#table-panel');
+ p.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div><div class="step-h" style="font-size:24px">Table ${t.label}</div><div class="step-sub" style="margin-bottom:0">${t.area}</div></div>
+    <span class="status"><span class="dot"></span>Available</span></div>
+  <div class="availbar" style="margin-top:16px">
+    <div class="availpill"><div class="t">${IC.user}Capacity</div><div class="v">${t.seats} guests</div></div>
+    <div class="availpill"><div class="t">${IC.euro}Minimum spend</div><div class="v">${money(t.min)}</div></div>
+  </div>
+  <div class="section-h">Included</div>
+  <div class="optcard"><div class="oic">${IC.bottle}</div><div><h4>${t.bottles}</h4><p>Table service throughout the night. Additional bottles orderable at the table.</p></div></div>
+  <button class="btn pri wide" style="margin-top:16px" id="t-book">Reserve · minimum ${money(t.min)}</button>
+  <div style="height:20px"></div>`;
+ p.scrollIntoView({behavior:'smooth',block:'start'});
+ $('#t-book').onclick=()=>openTablePayment(v,t);
+}
+function openTablePayment(v,t){
+ const ov=$('#overlay2');S._table={v,t,mode:'full'};
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="tp-back">${IC.back}</button><div class="ovtitle">Reserve Table ${t.label}</div></div>
+  <div class="flowbody">
+    <div class="step-h">How do you want to pay?</div>
+    <div class="step-sub">${v.name} · Table ${t.label} · ${t.area} · minimum spend ${money(t.min)}</div>
+    <div class="optcard on" data-m="full"><div class="oic">${IC.card}</div><div><h4>Pay in full now</h4><p>Secure the table instantly by paying the full ${money(t.min)} minimum online.</p></div></div>
+    <div class="optcard" data-m="group"><div class="oic">${IC.users}</div><div><h4>Split with your group</h4><p>Invite friends with a link. Everyone chips in what they want — unequal splits welcome. Live progress + group chat.</p></div></div>
+    <div class="optcard" data-m="deposit"><div class="oic">${IC.percent}</div><div><h4>Pay 20% deposit</h4><p>Pay ${money(Math.round(t.min*0.2))} now, settle the remaining ${money(t.min-Math.round(t.min*0.2))} at the door. Must be committed by 20:00 on the day.</p></div></div>
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="tp-go">Continue</button></div>`;
+ ov.classList.add('show');
+ $('#tp-back').onclick=()=>ov.classList.remove('show');
+ $$('#overlay2 .optcard').forEach(c=>c.onclick=()=>{S._table.mode=c.dataset.m;$$('#overlay2 .optcard').forEach(x=>x.classList.toggle('on',x===c));});
+ $('#tp-go').onclick=()=>{
+   const {v,t,mode}=S._table;
+   if(mode==='group')return openGroupPayment(v,t);
+   const dep=mode==='deposit';
+   const paidNow=dep?Math.round(t.min*0.2):t.min;
+   S.reservations.push({id:rid(),venue:v,table:t,mode,paid:paidNow,total:t.min,
+     status:dep?'Deposit paid — balance at entrance':'Reservation confirmed',ts:Date.now()});
+   toast(dep?'Deposit paid — table held':'Table reserved — see you there');
+   $('#overlay2').classList.remove('show');$('#overlay').classList.remove('show');setTab('bookings');
+ };
+}
+
+/* ---- group payment ---- */
+function openGroupPayment(v,t){
+ const tgt=t.min;const r=(f)=>Math.round(tgt*f/10)*10;
+ const parts=[{n:'You',a:r(.22),me:true},{n:'Sarah',a:r(.15)},{n:'Marco',a:r(.12)},{n:'Elena',a:r(.1)},{n:'Luca',a:0},{n:'Sofia',a:0},{n:'Alex',a:0},{n:'Giulia',a:0}];
+ S.group={venue:v,table:t,parts,target:tgt,
+   msgs:[{who:'Sarah',me:false,txt:'in! just paid my share 🙌'},{who:'Marco',me:false,txt:'same, added '+money(r(.12))},{who:'You',me:true,txt:'nice, need '+money(tgt)+' total by 20:00 👀'}]};
+ renderGroup();
+ $('#overlay2').classList.add('show');
+}
+function groupPaid(){return S.group.parts.reduce((a,p)=>a+p.a,0);}
+function renderGroup(){
+ const g=S.group;const paid=groupPaid();const pct=Math.min(100,Math.round(paid/g.target*100));
+ const remaining=Math.max(0,g.target-paid);
+ const stateIdx = paid>=g.target?4 : paid>0?1 : 0;
+ const states=['Awaiting contributions','Partially funded','Deposit paid','Balance due at entrance','Fully paid'];
+ const ov=$('#overlay2');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="g-back">${IC.back}</button><div class="ovtitle">Group Payment</div></div>
+  <div class="flowbody">
+    <div class="step-h" style="font-size:23px">${g.venue.name} · Table ${g.table.label}</div>
+    <div class="step-sub">${g.table.area} · ${g.table.seats} guests · deadline 20:00 today</div>
+
+    <div class="progwrap">
+      <div class="progtop"><div class="paid">${money(paid)}<s>contributed so far</s></div>
+        <div class="tgt">minimum spend<br><b>${money(g.target)}</b></div></div>
+      <div class="progbar"><i id="gbar"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:9px">
+        <span>${pct}% funded</span><span>${remaining>0?money(remaining)+' remaining':'Fully funded ✓'}</span></div>
+    </div>
+
+    <div class="paystates">${states.map((s,i)=>`<span class="paystate ${i===stateIdx?'on':''}">${s}</span>`).join('')}</div>
+
+    <div class="section-h" style="margin-top:6px">Participants (${g.parts.filter(p=>p.a>0).length}/${g.parts.length})</div>
+    <div class="parts">${g.parts.map(p=>`<span class="partchip"><span class="av">${p.n[0]}</span><b>${p.n}</b>${p.a>0?`<s>${money(p.a)}</s>`:'<s style="color:var(--muted2)">—</s>'}</span>`).join('')}</div>
+
+    <div class="sheet-actions" style="margin-top:14px">
+      <button class="btn sec" id="g-invite">${IC.link}Invite link</button>
+      <button class="btn pri" id="g-add">${IC.plus}Add my contribution</button>
+    </div>
+
+    ${remaining>0?`<button class="btn ghost wide" style="margin-top:11px" id="g-door">Commit to pay ${money(remaining)} at the entrance</button>`:''}
+
+    <div class="section-h">Group chat</div>
+    <div class="chat" id="chat">
+      <div id="msgs">${g.msgs.map(m=>msgHTML(m)).join('')}</div>
+      <div class="chatin"><input id="chatinput" placeholder="Message the group…"><button id="chatsend">${IC.send}</button></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="g-confirm" ${paid<g.target?'style=opacity:.5':''}>${paid>=g.target?'Confirm reservation':'Awaiting full funding'}</button></div>`;
+ requestAnimationFrame(()=>{$('#gbar').style.width=pct+'%';});
+ $('#g-back').onclick=()=>ov.classList.remove('show');
+ $('#g-invite').onclick=()=>toast('Invite link copied — friends must sign up to join');
+ $('#g-add').onclick=()=>{addContribution();};
+ const gdoor=$('#g-door');if(gdoor)gdoor.onclick=()=>{
+   const remaining=Math.max(0,g.target-groupPaid());
+   S.reservations.push({id:rid(),venue:g.venue,table:g.table,mode:'group-door',paid:groupPaid(),total:g.target,
+     status:'Deposit paid — '+money(remaining)+' due at entrance',ts:Date.now()});
+   toast('Committed — remaining balance due at the door');ov.classList.remove('show');$('#overlay').classList.remove('show');setTab('bookings');
+ };
+ $('#chatsend').onclick=sendMsg;$('#chatinput').onkeydown=e=>{if(e.key==='Enter')sendMsg();};
+ $('#g-confirm').onclick=()=>{
+   if(groupPaid()<g.target){toast('Table not fully funded yet');return;}
+   S.reservations.push({id:rid(),venue:g.venue,table:g.table,mode:'group',paid:groupPaid(),total:g.target,status:'Reservation confirmed',ts:Date.now()});
+   toast('Group reservation confirmed 🎉');ov.classList.remove('show');$('#overlay').classList.remove('show');setTab('bookings');
+ };
+}
+function msgHTML(m){return `<div class="msg ${m.me?'me':''}"><span class="av">${m.who[0]}</span><div class="bub">${m.me?'':`<div class="who">${m.who}</div>`}${m.txt}</div></div>`;}
+function addContribution(){
+ const g=S.group;const empty=g.parts.find(p=>p.a===0&&!p.me);
+ const amt=[80,100,120,150][Math.floor(Math.random()*4)];
+ if(empty){empty.a=amt;g.msgs.push({who:empty.n,me:false,txt:`joined + paid ${money(amt)}`});toast(empty.n+' contributed '+money(amt));}
+ else{const me=g.parts.find(p=>p.me);me.a+=50;toast('Added €50 to your contribution');}
+ renderGroup();
+}
+function sendMsg(){const i=$('#chatinput');if(!i.value.trim())return;S.group.msgs.push({who:'You',me:true,txt:i.value.trim()});renderGroup();
+ setTimeout(()=>{$('#msgs')&&($('#msgs').scrollTop=9999);},50);}
+
+/* ======================= SEARCH TAB ======================= */
+function venueScore(v,q){
+ let s=0;const n=v.name.toLowerCase();
+ if(n===q)s+=100; else if(n.startsWith(q))s+=60; else if(n.includes(q))s+=40;
+ if(v.hood.toLowerCase().includes(q))s+=20;
+ if([...v.genres,...v.tags,v.type].join(' ').toLowerCase().includes(q))s+=15;
+ if(v.events.some(e=>(e.title+' '+e.art).toLowerCase().includes(q)))s+=12;
+ if(v.status==='open')s+=3;
+ return s;
+}
+function searchResults(){
+ const q=(S.searchQ||'').trim().toLowerCase();
+ let list=VENUES.filter(v=>filtersPass(v)&&matchVenue(v,q));
+ if(q) list.sort((a,b)=>venueScore(b,q)-venueScore(a,q));
+ else  list.sort((a,b)=>((b.status==='open')-(a.status==='open'))||((b.newly?1:0)-(a.newly?1:0))||(parseFloat(a.dist)-parseFloat(b.dist)));
+ return list;
+}
+function activeFilterCount(){
+ let n=S.filters.size;const a=S.adv;if(a)n+=a.hoods.size+a.types.size+a.prices.size+a.genres.size+(a.dist?1:0);return n;
+}
+function renderSearch(){
+ const p=$('#panel-search');
+ if(!cityHasContent()){
+   p.innerHTML=`<div class="panel-head" style="padding-bottom:0"><div class="destslot" style="margin-bottom:6px"></div><h1>Search</h1></div>${cityEmptyHTML()}`;
+   refreshDestControls();bindChooseCity();return;
+ }
+ const q=(S.searchQ||'').replace(/"/g,'&quot;');
+ const fc=activeFilterCount();
+ p.innerHTML=`
+  <div class="panel-head" style="padding-bottom:0"><div class="destslot" style="margin-bottom:6px"></div><h1>Search</h1></div>
+  <div class="panel-body">
+    <div class="search search-inline">${IC.search}
+      <input id="sq" placeholder="What are you looking for?" value="${q}" autocomplete="off">
+      ${S.searchQ?`<button class="clearx" id="sq-clear" aria-label="Clear">${IC.x}</button>`:''}
+      <button class="fbtn" id="sq-filters" aria-label="Filters">${IC.sliders}</button>
+    </div>
+    <div class="chips" id="schips" style="margin-top:11px"></div>
+    <div class="rescount" id="srescount">Loading…</div>
+    <div id="sresults"></div>
+  </div>`;
+ renderSChips();
+ const inp=$('#sq');
+ inp.oninput=()=>{S.searchQ=inp.value;updateSearchResults();};
+ $('#sq-clear')&&($('#sq-clear').onclick=()=>{S.searchQ='';renderSearch();inp&&$('#sq').focus();});
+ $('#sq-filters').onclick=openFilterSheet;
+ p.onscroll=()=>{S._searchScroll=p.scrollTop;};
+ // brief skeleton load, then results (restore scroll after)
+ $('#sresults').innerHTML=Array(4).fill(`<div class="skel"><div class="s1 shimmer"></div><div class="s2"><div class="shimmer" style="width:55%"></div><div class="shimmer" style="width:32%"></div><div class="shimmer" style="width:70%"></div></div></div>`).join('');
+ clearTimeout(renderSearch._t);
+ renderSearch._t=setTimeout(()=>{updateSearchResults();if(S._searchScroll)p.scrollTop=S._searchScroll;},260);
+}
+function renderSChips(){
+ const c=$('#schips');if(!c)return;
+ c.innerHTML=FILTERS.map(([label,key])=>{const on=S.filters.has(key);const dot=key==='open'?'<i class="dot"></i>':'';
+   return `<button class="chip ${on?'on':''}" data-f="${key}">${dot}${label}</button>`;}).join('');
+ $$('#schips .chip').forEach(ch=>ch.onclick=()=>{const k=ch.dataset.f;S.filters.has(k)?S.filters.delete(k):S.filters.add(k);renderSChips();renderChips&&renderChips();updateSearchResults();});
+}
+function updateSearchResults(){
+ const list=searchResults();
+ const rc=$('#srescount');if(rc)rc.textContent=list.length+' result'+(list.length===1?'':'s');
+ const c=$('#sresults');if(!c)return;
+ // clear button sync
+ const wrap=$('#sq')?.parentElement;let cx=$('#sq-clear');
+ if(S.searchQ&&!cx&&wrap){cx=el(`<button class="clearx" id="sq-clear" aria-label="Clear">${IC.x}</button>`);wrap.insertBefore(cx,$('#sq-filters'));cx.onclick=()=>{S.searchQ='';renderSearch();};}
+ if(!S.searchQ&&cx)cx.remove();
+ if(!list.length){c.innerHTML=noResultsHTML();$('#nr-clear')&&($('#nr-clear').onclick=()=>{S.searchQ='';renderSearch();});$('#nr-reset')&&($('#nr-reset').onclick=()=>{resetAllFilters();renderSearch();});return;}
+ c.innerHTML=list.map((v,i)=>vresultHTML(v,i)).join('');
+ $$('#sresults .vresult').forEach(n=>n.onclick=()=>openVenue(n.dataset.v));
+}
+function vresultHTML(v,i){
+ const live=v.status==='open'?['var(--green)','Open tonight']:v.status==='soon'?['var(--amber)','Opens soon']:['var(--muted2)','Closed'];
+ const tables=!(v.tablesText||'').includes('No tables')&&v.status!=='off';
+ return `<div class="vresult" data-v="${v.id}" style="--vibe:${VIBES[v.vibe]};animation-delay:${Math.min(i*35,280)}ms">
+   <div class="vimg"><span class="ic">${venueEmoji(v.vibe)}</span></div>
+   <div class="vinfo"><h3>${v.name}</h3><div class="cat">${v.type}</div>
+     <div class="meta">${v.hood} · ${v.dist} · ${v.price}</div>
+     <div class="st"><span class="d" style="background:${live[0]}"></span>${live[1]}${tables?' · Tables':''}</div>
+   </div></div>`;
+}
+function noResultsHTML(){
+ return `<div class="nores"><div class="eic">${IC.search}</div>
+   <h3>No venues match your search.</h3>
+   <p style="font-size:13px">Try a different name, neighbourhood or genre.</p>
+   <div class="acts">${S.searchQ?`<button class="btn sec" id="nr-clear" style="flex:none;padding:0 18px;height:42px">Clear search</button>`:''}
+     ${activeFilterCount()?`<button class="btn ghost" id="nr-reset" style="flex:none;padding:0 18px;height:42px">Reset filters</button>`:''}</div></div>`;
+}
+function resetAllFilters(){S.filters.clear();S.adv={hoods:new Set(),types:new Set(),prices:new Set(),genres:new Set(),dist:0};renderChips&&renderChips();renderMarkers&&renderMarkers();}
+/* advanced filter bottom sheet */
+function openFilterSheet(){
+ const uniq=(arr)=>[...new Set(arr)];
+ const hoods=uniq(VENUES.map(v=>v.hood)).sort();
+ const types=uniq(VENUES.map(v=>v.type)).sort();
+ const genres=['Techno','House','EDM','Latin','Rooftop','Speakeasy'];
+ const prices=['€','€€','€€€'];
+ const dists=[[2,'≤ 2 km'],[3,'≤ 3 km'],[5,'≤ 5 km']];
+ const opt=(set,val,label)=>`<button class="fopt ${set.has(val)?'on':''}" data-set="${set===S.adv.hoods?'hoods':set===S.adv.types?'types':set===S.adv.prices?'prices':'genres'}" data-v="${val}">${label||val}</button>`;
+ const sh=$('#fsheet');
+ sh.innerHTML=`<div class="fgrab"></div>
+   <h3>Filters</h3><p style="color:var(--muted);font-size:13px">Refine the venue list.</p>
+   <div class="fgroup"><div class="fl">Quick</div><div class="fopts">
+     ${[['open','Open tonight'],['tables','Tables available'],['newly','Newly opened']].map(([k,l])=>`<button class="fopt ${S.filters.has(k)?'on':''}" data-quick="${k}">${l}</button>`).join('')}
+   </div></div>
+   <div class="fgroup"><div class="fl">Neighbourhood</div><div class="fopts">${hoods.map(h=>opt(S.adv.hoods,h)).join('')}</div></div>
+   <div class="fgroup"><div class="fl">Music genre</div><div class="fopts">${genres.map(g=>opt(S.adv.genres,g)).join('')}</div></div>
+   <div class="fgroup"><div class="fl">Venue type</div><div class="fopts">${types.map(t=>opt(S.adv.types,t)).join('')}</div></div>
+   <div class="fgroup"><div class="fl">Price level</div><div class="fopts">${prices.map(pr=>opt(S.adv.prices,pr)).join('')}</div></div>
+   <div class="fgroup"><div class="fl">Distance</div><div class="fopts">${dists.map(([km,l])=>`<button class="fopt ${S.adv.dist===km?'on':''}" data-dist="${km}">${l}</button>`).join('')}</div></div>
+   <div class="factions"><button class="btn ghost" id="f-clear">Clear all</button><button class="btn pri" id="f-apply">Apply filters</button></div>`;
+ $('#fbackdrop').classList.add('show');sh.classList.add('show');
+ const close=()=>{sh.classList.remove('show');$('#fbackdrop').classList.remove('show');};
+ $('#fbackdrop').onclick=close;
+ $$('#fsheet .fopt[data-set]').forEach(b=>b.onclick=()=>{const set=S.adv[b.dataset.set];const val=b.dataset.v;set.has(val)?set.delete(val):set.add(val);b.classList.toggle('on');});
+ $$('#fsheet .fopt[data-quick]').forEach(b=>b.onclick=()=>{const k=b.dataset.quick;S.filters.has(k)?S.filters.delete(k):S.filters.add(k);b.classList.toggle('on');});
+ $$('#fsheet .fopt[data-dist]').forEach(b=>b.onclick=()=>{const km=+b.dataset.dist;S.adv.dist=(S.adv.dist===km?0:km);$$('#fsheet .fopt[data-dist]').forEach(x=>x.classList.toggle('on',+x.dataset.dist===S.adv.dist));});
+ $('#f-clear').onclick=()=>{resetAllFilters();close();renderSearch();};
+ $('#f-apply').onclick=()=>{close();renderSChips();renderChips&&renderChips();renderMarkers&&renderMarkers();updateSearchResults();};
+}
+
+/* ======================= DISCOVER ======================= */
+function renderDiscover(){
+ const p=$('#panel-discover');
+ if(!cityHasContent()){
+   p.innerHTML=`<div class="panel-head"><div class="destslot" style="margin-bottom:6px"></div><div class="k">Tonight in ${destName()}</div><h1>Discover</h1></div>${cityEmptyHTML()}`;
+   refreshDestControls();bindChooseCity();return;
+ }
+ const cityV=VENUES.filter(v=>v.city===S.dest&&v.published!==false);
+ const feat=cityV.find(v=>v.id==='magazzini')||cityV[0];const fe=feat.events[0];
+ const tonight=cityV.filter(v=>v.status==='open');
+ const newly=cityV.filter(v=>v.newly);
+ p.innerHTML=`
+  <div class="panel-head"><div class="destslot" style="margin-bottom:6px"></div><div class="k">Tonight in ${destName()}</div><h1>Discover</h1></div>
+  <div class="panel-body">
+    <div class="feature" style="--evibe:${VIBES[fe.vibe]}" data-ev="${fe.id}">
+      <div class="img"></div><div class="fade"></div>
+      <div class="k">${IC.flame}&nbsp;EDITORS’ PICK</div>
+      <div class="info"><div class="k" style="position:static;display:inline-block;margin-bottom:10px">${fe.day} ${fe.mon} · ${feat.name}</div>
+        <h3>${fe.title}</h3><div class="sub"><span>${fe.art}</span><span>${IC.clock}${fe.time}</span></div>
+        <button class="btn pri wide" style="margin-top:14px" data-ev="${fe.id}">Get tickets · from ${money(Math.min(...fe.tiers.map(t=>t.p)))}</button></div>
+    </div>
+
+    <div class="section-h" style="margin-top:8px">Open right now</div>
+    <div class="hscroll">${tonight.map(v=>vcardHTML(v)).join('')}</div>
+
+    <div class="section-h">Trending this week</div>
+    ${cityV.slice(0,5).map((v,i)=>`<div class="trend" data-v="${v.id}"><div class="rk">${i+1}</div>
+      <div class="img" style="--vibe:${VIBES[v.vibe]}"></div>
+      <div class="ti"><h4>${v.name}</h4><p>${v.hood} · ${v.genres.join(' · ')}</p></div>${IC.chev}</div>`).join('')}
+
+    ${newly.length?`<div class="section-h">Newly opened</div>
+    <div class="hscroll">${newly.map(v=>vcardHTML(v)).join('')}</div>`:''}
+    <div style="height:10px"></div>
+  </div>`;
+ $$('#panel-discover [data-ev]').forEach(n=>n.onclick=(e)=>{e.stopPropagation();bookEvent(n.dataset.ev);});
+ $$('#panel-discover .vcard,#panel-discover .trend').forEach(n=>n.onclick=()=>openVenue(n.dataset.v));
+}
+function vcardHTML(v){
+ const live=v.status==='open'?'':v.status==='soon'?'soon':'off';
+ const st=v.status==='open'?'Open':v.status==='soon'?'Soon':'Closed';
+ return `<div class="vcard" data-v="${v.id}"><div class="img" style="--evibe:${VIBES[v.vibe]}">
+   <span class="st"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:${v.status==='open'?'var(--green)':v.status==='soon'?'var(--amber)':'var(--muted2)'}"></span>${st}</span></div>
+   <h4>${v.name}</h4><p>${v.hood} · ${v.price}</p></div>`;
+}
+
+/* ======================= BOOKINGS ======================= */
+function renderBookings(){
+ const p=$('#panel-bookings');
+ const up=[...S.tickets.filter(t=>!t.used),...S.reservations];
+ const past=S.tickets.filter(t=>t.used);
+ const list=S.bkSeg==='upcoming'?up:past;
+ p.innerHTML=`
+  <div class="panel-head"><div class="k">Your night</div><h1>Bookings</h1></div>
+  <div class="panel-body">
+    <div class="segbar"><button class="${S.bkSeg==='upcoming'?'on':''}" data-s="upcoming">Upcoming</button>
+      <button class="${S.bkSeg==='past'?'on':''}" data-s="past">Past</button></div>
+    ${list.length?list.map(b=>bkCardHTML(b)).join(''):emptyHTML()}
+  </div>`;
+ $$('#panel-bookings .segbar button').forEach(b=>b.onclick=()=>{S.bkSeg=b.dataset.s;renderBookings();});
+ $$('#panel-bookings [data-qr]').forEach(b=>b.onclick=()=>showTicketModal(b.dataset.qr));
+ $$('#panel-bookings [data-grp]').forEach(b=>b.onclick=()=>{const r=S.reservations.find(x=>x.id===b.dataset.grp);toast('Reservation '+r.status.toLowerCase());});
+ $$('#panel-bookings [data-transfer]').forEach(b=>b.onclick=()=>toast('Transfer link sent — same name, same code'));
+}
+function bkCardHTML(b){
+ if(b.payload!==undefined){ // ticket
+  return `<div class="bkcard"><div class="stripe"></div>
+    <div class="bh"><div><div class="type">Event ticket</div><h4>${b.ev.title}</h4></div>
+      <span class="bkstatus ${b.used?'past':'ok'}">${b.used?'Used':'Valid'}</span></div>
+    <div class="when">${IC.pin2}${b.venue.name}<span>·</span>${b.ev.day} ${b.ev.mon}<span>·</span>${b.ev.time}</div>
+    <div class="when">${IC.ticket2}${b.tier}${b.qty>1?' × '+b.qty:''}${b.drinks?` · 🍸 ${b.drinks} drink voucher${b.drinks>1?'s':''}`:''}</div>
+    <div class="bkact"><button class="pri" data-qr="${b.id}">${IC.qr}Show QR</button>
+      <button data-transfer="${b.id}">${IC.transfer}Transfer</button></div></div>`;
+ }else{ // reservation
+  const ok=b.status.includes('confirmed');
+  return `<div class="bkcard table"><div class="stripe"></div>
+    <div class="bh"><div><div class="type">Table reservation</div><h4>${b.venue.name} · Table ${b.table.label}</h4></div>
+      <span class="bkstatus ${ok?'ok':'pend'}">${ok?'Confirmed':'Deposit'}</span></div>
+    <div class="when">${IC.table}${b.table.area}<span>·</span>${b.table.seats} guests</div>
+    <div class="when">${IC.euro}Paid ${money(b.paid)} of ${money(b.total)}</div>
+    <div class="when" style="color:${ok?'var(--green)':'var(--amber)'}">${b.status}</div>
+    <div class="bkact"><button class="pri" data-grp="${b.id}">${IC.info}Details</button></div></div>`;
+ }
+}
+function emptyHTML(){return `<div class="empty"><div class="eic">${IC.ticket}</div>
+  <h3 style="font-family:var(--serif);font-size:20px;margin-bottom:8px;color:var(--text)">Nothing here yet</h3>
+  <p style="font-size:13.5px">${S.bkSeg==='upcoming'?'Book a ticket or table and it’ll appear here with your QR code.':'Your past nights will show up here.'}</p>
+  <button class="btn pri" style="max-width:200px;margin:18px auto 0" onclick="document.querySelector('[data-tab=map]').click()">Explore venues</button></div>`;}
+function showTicketModal(id){
+ const tk=S.tickets.find(t=>t.id===id);const ov=$('#overlay2');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="tm-back">${IC.back}</button><div class="ovtitle">Your ticket</div></div>
+  <div class="success" style="padding-top:10px">
+   <div class="qrcard"><div class="qr" id="qrbox2"></div>
+     <div class="qmeta"><div class="ev">${tk.ev.title}</div><div class="dt">${tk.venue.name} · ${tk.ev.day} ${tk.ev.mon} · ${tk.ev.time}</div>
+       <span class="tier">${tk.tier}${tk.qty>1?' × '+tk.qty:''}</span>
+       ${tk.drinks?`<div class="drinks">🍸 ${tk.drinks} drink voucher${tk.drinks>1?'s':''}</div>`:''}</div></div>
+   <p style="color:var(--muted);font-size:12.5px;margin-top:16px">Ticket ID ${tk.id}</p>
+   <div class="wallets"><button class="wallet" onclick="toast('Added to Apple Wallet')">${IC.apple}Apple Wallet</button>
+     <button class="wallet g" onclick="toast('Added to Google Wallet')">${IC.wallet}Google Wallet</button></div>
+   <button class="btn ghost wide" style="max-width:290px;margin-top:16px" onclick="toast('Transfer link sent — same name, same code')">${IC.transfer}Transfer ticket</button>
+  </div>`;
+ renderQR($('#qrbox2'),tk.payload);
+ $('#tm-back').onclick=()=>ov.classList.remove('show');
+ ov.classList.add('show');
+}
+
+/* ======================= PROFILE + ROLES ======================= */
+const ROLES=[['guest','Guest','🎟️','Discover & book'],['door','Door Staff','📲','Scan tickets'],
+  ['organizer','Organizer','🎛️','Create events'],['venue','Venue','🏛️','Manage venue'],['god','God Mode','⚡','Platform admin']];
+function renderProfile(){
+ const p=$('#panel-profile');
+ p.innerHTML=`
+  <div class="prof-hero"><div class="pav">M</div><div><h1>Mario Rossi</h1><p>Milano · ${S.tickets.length} tickets · ${S.reservations.length} tables</p></div></div>
+  <div class="panel-body">
+    <div class="rolecard"><div class="rt">${IC.shield}Switch interface — each pro role opens its own full workspace</div>
+      <div class="roles">${ROLES.map(r=>`<button class="rolebtn ${S.role===r[0]?'on':''}" data-r="${r[0]}"><div class="e">${r[2]}</div><h5>${r[1]}</h5><p>${r[3]}</p>${r[0]!=='guest'?`<div class="entertag">Enter ${IC.chev}</div>`:''}</button>`).join('')}</div>
+    </div>
+    <div id="role-content"></div>
+  </div>`;
+ $$('#panel-profile .rolebtn').forEach(b=>b.onclick=()=>{
+   const r=b.dataset.r;
+   if(r==='guest'){S.role='guest';renderProfile();}
+   else enterMode(r);
+ });
+ renderRoleContent();
+}
+function renderRoleContent(){
+ const c=$('#role-content');
+ if(S.role==='guest'){
+  const lightOn=isLight();
+  c.innerHTML=`<div style="font-size:11px;letter-spacing:1.5px;color:var(--muted2);font-weight:600;text-transform:uppercase;margin:6px 0 4px">Settings</div>
+    <div class="listrow" style="cursor:pointer" id="row-location">
+      <div class="li">${IC.pin2}</div>
+      <div class="lt"><h4>Location</h4><p style="font-size:11.5px;color:var(--muted);margin-top:2px">${destName()}, ${(DEST(S.dest)||{}).country||''}</p></div>
+      <span class="chev">${IC.chev}</span>
+    </div>
+    <div class="listrow" style="cursor:pointer" id="row-appearance">
+      <div class="li">${IC.sun}</div>
+      <div class="lt"><h4>Appearance</h4><p style="font-size:11.5px;color:var(--muted);margin-top:2px">Light mode</p></div>
+      <div class="sw ${lightOn?'on':''}" id="theme-sw" role="switch" aria-checked="${lightOn}"></div>
+    </div>`
+   +[['Payment methods',IC.card],['Saved venues',IC.bookmark],['Notifications',IC.bell],['Privacy & security',IC.lock],['Help center',IC.info]]
+    .map(([t,i])=>`<div class="listrow"><div class="li">${i}</div><div class="lt"><h4>${t}</h4></div><span class="chev">${IC.chev}</span></div>`).join('');
+  $('#row-location').onclick=openLocationSelector;
+  const toggle=()=>{const nowLight=!isLight();setTheme(nowLight);const sw=$('#theme-sw');sw&&(sw.classList.toggle('on',nowLight),sw.setAttribute('aria-checked',nowLight));const cap=$('#row-appearance p');cap&&(cap.textContent='Light mode');};
+  $('#theme-sw').onclick=(e)=>{e.stopPropagation();toggle();};
+  $('#row-appearance').onclick=toggle;
+  return;
+ }
+ if(S.role==='door'){
+  c.innerHTML=`<div class="dcard"><div class="dch"><h4>Door — Alcatraz</h4><span class="pill ok">On shift</span></div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Open the scanner to validate guest QR codes at the entrance.</p>
+    <button class="btn pri wide" id="open-scanner">${IC.qr}Open scanner</button></div>
+    <div class="kpis"><div class="kpi"><div class="kl">Scanned tonight</div><div class="kv">${S.tickets.filter(t=>t.used).length}</div></div>
+      <div class="kpi"><div class="kl">On the list</div><div class="kv">${S.tickets.length}</div></div></div>`;
+  $('#open-scanner').onclick=openScanner;return;
+ }
+ if(S.role==='organizer'){c.innerHTML=organizerDash();bindOrganizer();return;}
+ if(S.role==='venue'){c.innerHTML=venueDash();bindVenue();return;}
+ if(S.role==='god'){c.innerHTML=godDash();bindGod();return;}
+}
+
+/* ---- SCANNER ---- */
+function openScanner(){
+ const ov=$('#overlay');
+ ov.innerHTML=`<div class="scanwrap">
+   <div class="scanhead"><h3>Ticket Scanner</h3><p>Point at a guest’s QR code</p></div>
+   <div class="scanview" id="scanview">
+     <div class="scanframe"><span></span><span></span><span></span><span></span></div>
+     <div class="scanline"></div>
+   </div>
+   <div class="scandemo"><div class="lab">Demo · simulate a scan</div><div class="btns" id="scanbtns"></div>
+     <button class="btn ghost wide" style="margin-top:9px" id="scan-close">Close scanner</button></div>
+ </div>`;
+ ov.classList.add('show');
+ const btns=$('#scanbtns');
+ const valid=S.tickets.filter(t=>!t.used&&!t.refunded);
+ btns.innerHTML='';
+ if(valid.length){valid.slice(0,2).forEach(t=>{const b=el(`<button>✓ ${t.ev.title.slice(0,16)}…</button>`);b.onclick=()=>scanResult('valid',t);btns.appendChild(b);});}
+ const dup=el(`<button>⟳ Already-used ticket</button>`);dup.onclick=()=>scanResult('used',valid[0]);btns.appendChild(dup);
+ const inv=el(`<button>✕ Fake / invalid QR</button>`);inv.onclick=()=>scanResult('invalid');btns.appendChild(inv);
+ const ref=el(`<button>€ Refunded ticket</button>`);ref.onclick=()=>scanResult('refunded');btns.appendChild(ref);
+ if(!valid.length){const note=el(`<p style="font-size:12px;color:var(--muted2);width:100%;margin-top:4px">Buy a ticket as a guest first to scan a real one.</p>`);btns.appendChild(note);}
+ $('#scan-close').onclick=()=>ov.classList.remove('show');
+}
+function scanResult(kind,tk){
+ const sv=$('#scanview');
+ let cls,icon,title,meta='',drinks='';
+ if(kind==='valid'){tk.used=true;cls='valid';icon=IC.check;title='VALID';
+   meta=`<div class="rr"><span>Ticket</span><b>${tk.tier}</b></div><div class="rr"><span>Event</span><b>${tk.ev.title.slice(0,22)}</b></div>`;
+   drinks=tk.drinks?`<div class="drinkbig">Give guest <b>${tk.drinks}</b> drink voucher${tk.drinks>1?'s':''} 🍸</div>`:`<div class="drinkbig" style="color:var(--muted)">No drink vouchers</div>`;
+   beep(880);}
+ else if(kind==='used'){cls='invalid';icon=IC.x;title='ALREADY USED';meta=`<div class="rr"><span>Status</span><b>Entry already scanned</b></div>`;beep(200);}
+ else if(kind==='refunded'){cls='refunded';icon=IC.euro;title='REFUNDED';meta=`<div class="rr"><span>Status</span><b>Ticket was refunded</b></div>`;beep(300);}
+ else{cls='invalid';icon=IC.x;title='INVALID';meta=`<div class="rr"><span>Status</span><b>Not a valid ticket</b></div>`;beep(200);}
+ const r=el(`<div class="scanresult ${cls}"><div class="big">${icon}</div><h2>${title}</h2>
+   <div class="rmeta">${meta}</div>${drinks}<button id="scan-again">Scan next</button></div>`);
+ sv.appendChild(r);
+ if(navigator.vibrate)navigator.vibrate(kind==='valid'?60:[40,40,40]);
+ $('#scan-again').onclick=()=>{r.remove();};
+}
+function beep(f){try{const a=new(window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();const g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.12,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.25);o.start();o.stop(a.currentTime+.25);}catch(e){}}
+
+/* ---- ORGANIZER ---- */
+function organizerDash(){
+ return `<div class="kpis">
+    <div class="kpi"><div class="kl">Tickets sold</div><div class="kv">1,284</div><div class="kd up">▲ 18% vs last event</div></div>
+    <div class="kpi"><div class="kl">Gross revenue</div><div class="kv">€38.5k</div><div class="kd up">▲ 12%</div></div>
+    <div class="kpi"><div class="kl">Live events</div><div class="kv">3</div><div class="kd">2 pending approval</div></div>
+    <div class="kpi"><div class="kl">Conversion</div><div class="kv">6.4%</div><div class="kd up">▲ 0.8pt</div></div>
+  </div>
+  <div class="dcard"><div class="dch"><h4>Your events</h4><span class="pill ok">Approved organizer</span></div>
+    <div class="approw"><div class="ai" style="--evibe:${VIBES.techno}"></div><div class="at"><h5>Warehouse: Amelie Lens</h5><p>Alcatraz · 20 Sep · 892 sold</p></div><span class="pill ok">Live</span></div>
+    <div class="approw"><div class="ai" style="--evibe:${VIBES.edm}"></div><div class="at"><h5>Elrow Milano</h5><p>Amnesia · 20 Sep · awaiting venue</p></div><span class="pill pend">Pending venue</span></div>
+    <div class="approw"><div class="ai" style="--evibe:${VIBES.rave}"></div><div class="at"><h5>Blackout: Acid Test</h5><p>Magazzini · 21 Sep · draft</p></div><span class="pill pend">Draft</span></div>
+  </div>
+  <button class="btn pri wide" id="org-new">${IC.plus}Create event proposal</button>
+  <div class="dcard" style="margin-top:14px"><div class="dch"><h4>Sales · last 7 days</h4></div>
+    <div class="bars">${[40,55,48,70,62,88,95].map((h,i)=>`<div class="b" style="height:${h}%"><span>${['M','T','W','T','F','S','S'][i]}</span></div>`).join('')}</div>
+    <div style="height:20px"></div></div>`;
+}
+function bindOrganizer(){$('#org-new')&&($('#org-new').onclick=()=>toast('New proposal → select venue → submit for approval'));}
+
+/* ---- VENUE ---- */
+function venueDash(){
+ return `<div class="kpis">
+    <div class="kpi"><div class="kl">Tonight’s revenue</div><div class="kv">€24.1k</div><div class="kd up">▲ 22%</div></div>
+    <div class="kpi"><div class="kl">Tables booked</div><div class="kv">18/24</div><div class="kd">6 available</div></div>
+    <div class="kpi"><div class="kl">Capacity</div><div class="kv">82%</div><div class="kd up">1,230 / 1,500</div></div>
+    <div class="kpi"><div class="kl">Door staff</div><div class="kv">4</div><div class="kd">On shift now</div></div>
+  </div>
+  <div class="dcard"><div class="dch"><h4>Event proposals</h4><span class="pill pend">2 need review</span></div>
+    <div class="approw"><div class="ai" style="--evibe:${VIBES.edm}"></div><div class="at"><h5>Elrow Milano</h5><p>by NightForm Collective · 20 Sep</p></div></div>
+    <div class="miniact"><button class="app" data-app>Approve</button><button class="rej" data-rej>Request changes</button></div>
+    <div class="approw" style="margin-top:12px"><div class="ai" style="--evibe:${VIBES.latin}"></div><div class="at"><h5>Reggaeton Fever</h5><p>by LatinHeat · 28 Sep</p></div></div>
+    <div class="miniact"><button class="app" data-app>Approve</button><button class="rej" data-rej>Request changes</button></div>
+  </div>
+  <div class="dcard"><div class="dch"><h4>Manage</h4></div>
+    ${[['Ticket & table availability',IC.ticket2],['Floor-plan & pricing',IC.table],['Venue info & imagery',IC.info],['Create door-staff access',IC.qr]].map(([t,i])=>`<div class="listrow" style="padding:12px 0"><div class="li">${i}</div><div class="lt"><h4>${t}</h4></div><span class="chev">${IC.chev}</span></div>`).join('')}
+  </div>`;
+}
+function bindVenue(){$$('#role-content [data-app]').forEach(b=>b.onclick=()=>toast('Event approved — now publishable to guests'));
+  $$('#role-content [data-rej]').forEach(b=>b.onclick=()=>toast('Change request sent to organizer'));
+  $$('#role-content .listrow').forEach(b=>b.onclick=()=>toast('Opening venue management'));}
+
+/* ---- GOD MODE ---- */
+function godDash(){
+ return `<div class="kpis">
+    <div class="kpi"><div class="kl">Platform GMV</div><div class="kv">€1.9M</div><div class="kd up">▲ 31% MoM</div></div>
+    <div class="kpi"><div class="kl">Active venues</div><div class="kv">42</div><div class="kd up">▲ 5 this month</div></div>
+    <div class="kpi"><div class="kl">Organizers</div><div class="kv">118</div><div class="kd pend" style="color:var(--amber)">7 pending</div></div>
+    <div class="kpi"><div class="kl">Tickets / mo</div><div class="kv">64.2k</div><div class="kd up">▲ 24%</div></div>
+  </div>
+  <div class="dcard"><div class="dch"><h4>Organizer approvals</h4><span class="pill pend">7 pending</span></div>
+    <div class="approw"><div class="ai" style="--evibe:${VIBES.house}"></div><div class="at"><h5>NightForm Collective</h5><p>12 past events · Milano</p></div></div>
+    <div class="miniact"><button class="app" data-gapp>Approve</button><button class="rej" data-grej>Reject</button></div>
+    <div class="approw" style="margin-top:12px"><div class="ai" style="--evibe:${VIBES.speak}"></div><div class="at"><h5>Underground Milano</h5><p>New · unverified</p></div></div>
+    <div class="miniact"><button class="app" data-gapp>Approve</button><button class="rej" data-grej>Reject</button></div>
+  </div>
+  <div class="dcard"><div class="dch"><h4>Oversight</h4></div>
+    ${[['All venues & events',IC.map],['All bookings & tickets',IC.ticket2],['Users & staff permissions',IC.users],['Override availability',IC.shield],['Platform analytics',IC.chart]].map(([t,i])=>`<div class="listrow" style="padding:12px 0"><div class="li">${i}</div><div class="lt"><h4>${t}</h4></div><span class="chev">${IC.chev}</span></div>`).join('')}
+  </div>
+  <div class="dcard"><div class="dch"><h4>GMV · 6 months</h4></div>
+    <div class="bars">${[45,52,60,58,78,96].map((h,i)=>`<div class="b" style="height:${h}%"><span>${['A','M','J','J','A','S'][i]}</span></div>`).join('')}</div><div style="height:20px"></div></div>`;
+}
+function bindGod(){$$('#role-content [data-gapp]').forEach(b=>b.onclick=()=>toast('Organizer approved & activated'));
+  $$('#role-content [data-grej]').forEach(b=>b.onclick=()=>toast('Application rejected'));
+  $$('#role-content .listrow').forEach(b=>b.onclick=()=>toast('Opening admin panel'));}
+
+/* ======================= MAP PAN / ZOOM ======================= */
+let view={x:0,y:0,s:1};
+function applyView(){$('#world').style.transform=`translate(${view.x}px,${view.y}px) scale(${view.s})`;}
+function resetMapView(){view={x:0,y:0,s:1};applyView();}
+function initMapPanZoom(){
+ const ms=$('#mapscreen');let drag=false,px,py,moved=false;
+ ms.addEventListener('pointerdown',e=>{if(e.target.closest('.marker')||e.target.closest('.topbar')||e.target.closest('.sheet'))return;drag=true;moved=false;px=e.clientX;py=e.clientY;});
+ ms.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-px,dy=e.clientY-py;if(Math.abs(dx)+Math.abs(dy)>4)moved=true;view.x+=dx;view.y+=dy;px=e.clientX;py=e.clientY;applyView();});
+ ms.addEventListener('pointerup',()=>drag=false);
+ ms.addEventListener('wheel',e=>{e.preventDefault();const ns=Math.max(.75,Math.min(2.4,view.s-e.deltaY*0.0015));view.s=ns;applyView();},{passive:false});
+}
+
+/* ======================= toast ======================= */
+let toastT;
+function toast(msg){const t=$('#toast');t.innerHTML=`${IC.check}<span>${msg}</span>`;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+window.toast=toast;
+
+/* ======================= stylised Milan SVG ======================= */
+function milanSVG(mini,focus){
+ const par=mini?'xMidYMid meet':'none';
+ const nils=MILAN_DISTRICTS.map(d=>`<path d="${d.d}" class="nil"/>`).join('');
+ let dot='';
+ if(mini&&focus&&VENUE_POS[focus.id]){
+   const fx=VENUE_POS[focus.id].x/100*MILAN_W, fy=VENUE_POS[focus.id].y/100*MILAN_H;
+   dot=`<circle cx="${fx}" cy="${fy}" r="14" fill="#A855F7"/><circle cx="${fx}" cy="${fy}" r="26" fill="none" stroke="#A855F7" stroke-width="3" stroke-opacity="0.5"/>`;
+ }
+ return `<svg ${mini?'':'id="mapsvg"'} viewBox="0 0 ${MILAN_W} ${MILAN_H}" preserveAspectRatio="${par}" style="width:100%;height:100%;display:block">
+   <defs>
+     <radialGradient id="mg" cx="52%" cy="44%" r="80%"><stop offset="0%" stop-color="#161226"/><stop offset="55%" stop-color="#0b0a13"/><stop offset="100%" stop-color="#08070c"/></radialGradient>
+   </defs>
+   <rect class="mbg" x="-200" y="-200" width="${MILAN_W+400}" height="${MILAN_H+400}" fill="url(#mg)"/>
+   <g class="nils">${nils}</g>
+   <path d="${MILAN_BOUNDARY}" class="cityline"/>
+   ${dot}
+ </svg>`;
+}
+function venueCentroid(){
+ const ks=Object.keys(VENUE_POS||{});if(!ks.length)return{x:52,y:46};
+ let x=0,y=0;ks.forEach(k=>{x+=VENUE_POS[k].x;y+=VENUE_POS[k].y;});
+ return{x:x/ks.length,y:y/ks.length};
+}
+function sizeWorld(){
+ const ms=$('#mapscreen');if(!ms||!ms.clientWidth)return;
+ const cw=ms.clientWidth,ch=ms.clientHeight,aspect=MILAN_W/MILAN_H;
+ let w,h;
+ if(cw/ch>aspect){w=cw;h=cw/aspect;}else{h=ch;w=ch*aspect;}
+ const boost=1.7;w*=boost;h*=boost;   // zoom into central Milan
+ const c=venueCentroid();
+ const world=$('#world');
+ world.style.width=w+'px';world.style.height=h+'px';
+ // place the venue cluster centroid at the visual centre (slightly above middle for the sheet)
+ world.style.left=(cw/2 - c.x/100*w)+'px';
+ world.style.top=(ch*0.42 - c.y/100*h)+'px';
+}
+
+/* ======================================================================
+   PRO WORKSPACES — each pro role replaces the whole app
+   ====================================================================== */
+const PRO_META={venue:{icon:'🏛️',label:'Venue Manager'},organizer:{icon:'🎛️',label:'Organizer'},door:{icon:'📲',label:'Door Staff'},god:{icon:'⚡',label:'God Mode'}};
+const PRO_NAV={
+ venue:[['overview','Overview',IC.chart],['events','Events',IC.ticket],['tables','Tables',IC.table],['door','Door',IC.qr],['settings','Venue',IC.sliders]],
+ organizer:[['dash','Dashboard',IC.chart],['events','Events',IC.ticket],['analytics','Analytics',IC.compass],['account','Account',IC.user]],
+ door:[['scan','Scanner',IC.qr],['tonight','Tonight',IC.chart]],
+ god:[['overview','Platform',IC.chart],['approvals','Approvals',IC.shield],['venues','Venues',IC.map],['locations','Locations',IC.pin2],['controls','Controls',IC.sliders],['users','Users',IC.users]]
+};
+const SWATCHES=[['#8B5CF6','#D946EF'],['#5AA8FF','#8B5CF6'],['#35D6A0','#22D3A0'],['#F6B44C','#FB5B78'],['#FB5B78','#D946EF'],['#22D3EE','#6366F1']];
+
+function enterMode(mode){
+ S.mode=mode;S.role=mode;S.proTab=PRO_NAV[mode][0][0];
+ $('#mapscreen').style.display='none';
+ ['#topbar','#sheet','#tabbar'].forEach(s=>$(s).classList.add('hidden'));
+ $$('.panel').forEach(p=>p.classList.remove('on'));
+ $('#overlay').classList.remove('show');$('#overlay2').classList.remove('show');
+ $('#pro').classList.add('show');renderPro();
+}
+function exitToGuest(){
+ S.mode='guest';S.role='guest';
+ $('#pro').classList.remove('show');
+ ['#topbar','#tabbar'].forEach(s=>$(s).classList.remove('hidden'));
+ setTab('profile');
+}
+window.enterMode=enterMode;
+function renderPro(){
+ const mode=S.mode,meta=PRO_META[mode],pro=$('#pro');
+ const sub=mode==='venue'?VENUE(S.proVenue).name:mode==='door'?('Door · '+VENUE(S.proVenue).name):meta.label;
+ pro.innerHTML=`
+  <div class="pro-head"><div class="badge">${meta.icon}</div>
+    <div class="pt"><div class="r">${meta.label}</div><h1>${sub}</h1></div>
+    <button class="pro-exit" id="pro-exit">${IC.back}Guest app</button></div>
+  <div class="pro-body" id="pro-body"></div>
+  <div class="pro-nav" id="pro-nav">${PRO_NAV[mode].map(t=>`<button data-pt="${t[0]}" class="${S.proTab===t[0]?'on':''}">${t[2]}<span>${t[1]}</span></button>`).join('')}</div>`;
+ $('#pro-exit').onclick=exitToGuest;
+ $$('#pro-nav button').forEach(b=>b.onclick=()=>{S.proTab=b.dataset.pt;renderPro();});
+ renderProBody();
+}
+function renderProBody(){
+ const c=$('#pro-body');c.scrollTop=0;
+ c.innerHTML=({venue:proVenueBody,organizer:proOrgBody,door:proDoorBody,god:proGodBody}[S.mode])(S.proTab);
+ proBind();
+}
+/* helpers */
+function kpiGrid(items){return `<div class="kpis">${items.map(k=>`<div class="kpi"><div class="kl">${k[0]}</div><div class="kv">${k[1]}</div>${k[2]?`<div class="kd ${k[3]||'up'}">${k[2]}</div>`:''}</div>`).join('')}</div>`;}
+function barChart(v,l){return `<div class="bars">${v.map((h,i)=>`<div class="b" style="height:${h}%"><span>${l[i]}</span></div>`).join('')}</div><div style="height:22px"></div>`;}
+function emptyLine(t){return `<p style="font-size:13px;color:var(--muted2);padding:10px 0">${t}</p>`;}
+function proposalCard(p,ctx){return `<div class="dcard"><div class="approw" style="border:0;padding:0 0 10px">
+   <div class="ai" style="--evibe:${VIBES[p.vibe]}"></div>
+   <div class="at"><h5>${p.title}</h5><p>by ${p.org} · ${p.day} ${p.mon} · ${p.genres.join(', ')} · ${money(p.tier.p)}</p></div>
+   <span class="pill pend">Pending</span></div>
+   <div class="miniact"><button class="app" data-approve="${p.id}">Approve</button><button class="rej" data-reject="${p.id}">${ctx==='venue'?'Request changes':'Reject'}</button></div></div>`;}
+function eventRow(e){const min=Math.min(...e.tiers.map(t=>t.p));const sold=Math.floor(Math.random()*400+120);
+ return `<div class="approw"><div class="ai" style="--evibe:${VIBES[e.vibe]}"></div>
+   <div class="at"><h5>${e.title}</h5><p>${e.day} ${e.mon} · ${e.time.split('–')[0]} · ${min===0?'Free':'from '+money(min)}</p></div>
+   <span class="pill ok">${sold} sold</span></div>`;}
+
+/* -------- VENUE -------- */
+function proVenueBody(tab){
+ const v=VENUE(S.proVenue);
+ if(tab==='overview'){return `<div class="pro-h">Tonight at ${v.name}</div><div class="pro-sub">Live operational overview.</div>
+   ${kpiGrid([['Tonight’s revenue','€24.1k','▲ 22%'],['Tables booked','18/24','6 free',''],['Capacity','82%','1,230 / 1,500',''],['Door staff','4','On shift','']])}
+   <div class="dcard"><div class="dch"><h4>Revenue · last 7 nights</h4></div>${barChart([40,55,48,70,62,88,95],['M','T','W','T','F','S','S'])}</div>
+   <div class="dcard"><div class="dch"><h4>Right now</h4><span class="pill ok">Doors open</span></div>
+     <div class="approw" style="border:0"><div class="ai" style="--evibe:${VIBES[v.events[0].vibe]}"></div><div class="at"><h5>${v.events[0].title}</h5><p>${v.events[0].time}</p></div></div></div>`;}
+ if(tab==='events'){
+   const props=PROPOSALS.filter(p=>p.venueId===S.proVenue&&p.state==='pending_venue');
+   return `<div class="pro-h">Events</div><div class="pro-sub">Approve organizer proposals or create your own.</div>
+     <div class="sec-h">Proposals to review <span class="cnt">${props.length} pending</span></div>
+     ${props.length?props.map(p=>proposalCard(p,'venue')).join(''):emptyLine('No proposals waiting.')}
+     <div class="sec-h">Your events <span class="cnt">${v.events.length}</span></div>
+     ${v.events.map(eventRow).join('')}
+     <button class="btn pri wide" id="v-create" style="margin-top:16px">${IC.plus}Create event</button>`;}
+ if(tab==='tables'){
+   if(!v._fp)v._fp=floorplan(v);
+   return `<div class="pro-h">Tables & pricing</div><div class="pro-sub">Toggle availability and see minimum spends — reflected in the guest app.</div>
+     ${v._fp.tables.map(t=>`<div class="tblmini"><div class="tn ${t.sold?'so':'av'}">${t.label}</div>
+       <div class="vt" style="flex:1"><h4>Table ${t.label} · ${t.area}</h4><p>${t.seats} guests · min ${money(t.min)}</p></div>
+       <div class="sw ${t.sold?'':'on'}" data-tbl="${t.id}"></div></div>`).join('')}`;}
+ if(tab==='door'){
+   return `<div class="dcard"><div class="dch"><h4>Door scanner</h4><span class="pill ok">Ready</span></div>
+     <p style="font-size:13px;color:var(--muted);margin-bottom:13px">Validate guest QR codes at the entrance.</p>
+     <button class="btn pri wide" id="v-scan">${IC.qr}Open scanner</button></div>
+     ${kpiGrid([['Scanned tonight',''+S.tickets.filter(t=>t.used).length],['On the list',''+S.tickets.length]])}
+     <div class="sec-h">Staff access</div>
+     ${['Luca R. · Door','Sara M. · Door','Dieg P. · Security'].map(s=>`<div class="listrow" style="padding:12px 0"><div class="li">${IC.user}</div><div class="lt"><h4>${s}</h4></div><span class="pill ok">Active</span></div>`).join('')}
+     <button class="tinybtn sec" id="v-staff" style="margin-top:12px">${IC.plus}Create staff access</button>`;}
+ if(tab==='settings'){
+   return `<div class="pro-h">Venue info</div><div class="pro-sub">Edits appear instantly in the guest app.</div>
+     <div class="field"><label>Managed venue</label><select id="vs-venue">${VENUES.map(x=>`<option value="${x.id}" ${x.id===S.proVenue?'selected':''}>${x.name}</option>`).join('')}</select></div>
+     <div class="field"><label>Name</label><input id="vs-name" value="${v.name}"></div>
+     <div class="field"><label>Neighbourhood</label><input id="vs-hood" value="${v.hood}"></div>
+     <div class="field"><label>Description</label><input id="vs-desc" value="${v.desc}"></div>
+     <div class="field"><label>Price level</label><select id="vs-price">${['€','€€','€€€'].map(p=>`<option ${p===v.price?'selected':''}>${p}</option>`).join('')}</select></div>
+     <button class="btn pri wide" id="vs-save">Save changes</button>`;}
+ return '';
+}
+/* -------- ORGANIZER -------- */
+const ORG_ME='NightForm Collective';
+function proOrgBody(tab){
+ if(tab==='dash'){return `<div class="pro-h">${ORG_ME}</div><div class="pro-sub">Your event performance.</div>
+   ${kpiGrid([['Tickets sold','1,284','▲ 18%'],['Gross revenue','€38.5k','▲ 12%'],['Live events','2','1 pending',''],['Conversion','6.4%','▲ 0.8pt']])}
+   <div class="dcard"><div class="dch"><h4>Sales · last 7 days</h4></div>${barChart([40,55,48,70,62,88,95],['M','T','W','T','F','S','S'])}</div>`;}
+ if(tab==='events'){
+   const mine=PROPOSALS.filter(p=>p.org===ORG_ME);
+   return `<div class="pro-h">Your events</div><div class="pro-sub">Submit proposals to venues for approval.</div>
+     ${mine.length?mine.map(p=>{const st=p.state==='approved'?['ok','Approved · live']:p.state==='rejected'?['rej','Rejected']:['pend','Pending venue'];
+       return `<div class="approw"><div class="ai" style="--evibe:${VIBES[p.vibe]}"></div><div class="at"><h5>${p.title}</h5><p>${VENUE(p.venueId)?.name||'—'} · ${p.day} ${p.mon}</p></div><span class="pill ${st[0]}">${st[1]}</span></div>`;}).join(''):emptyLine('No proposals yet.')}
+     <button class="btn pri wide" id="o-create" style="margin-top:16px">${IC.plus}Create event proposal</button>`;}
+ if(tab==='analytics'){return `<div class="pro-h">Analytics</div><div class="pro-sub">Sell-through across your last events.</div>
+   <div class="dcard"><div class="dch"><h4>Sell-through %</h4></div>${barChart([92,78,85,64,96,88],['Ame','Elr','Blk','Reg','Tec','Sub'])}</div>
+   ${kpiGrid([['Avg. ticket','€26','—',''],['Repeat buyers','34%','▲ 4pt'],['Refund rate','1.2%','▼ 0.3pt','down'],['NPS','72','▲ 6']])}`;}
+ if(tab==='account'){return `<div class="pro-h">Account</div><div class="pro-sub">Organizer profile & payouts.</div>
+   <div class="dcard"><div class="dch"><h4>${ORG_ME}</h4><span class="pill ok">Approved</span></div>
+     <p style="font-size:13px;color:var(--muted)">Approved by platform admin · 12 events hosted · Milano.</p></div>
+   ${['Payout account','Team members','Tax details','Notifications'].map(t=>`<div class="listrow" style="padding:13px 0"><div class="li">${IC.card}</div><div class="lt"><h4>${t}</h4></div><span class="chev">${IC.chev}</span></div>`).join('')}`;}
+ return '';
+}
+/* -------- DOOR -------- */
+function proDoorBody(tab){
+ if(tab==='scan'){return `<div style="text-align:center;padding:24px 0">
+     <div style="width:96px;height:96px;border-radius:26px;background:var(--grad);display:grid;place-items:center;margin:10px auto 18px;box-shadow:var(--glow)">${IC.qr}</div>
+     <div class="pro-h" style="text-align:center">Ready to scan</div>
+     <div class="pro-sub" style="text-align:center">Validate guest QR codes at the door of ${VENUE(S.proVenue).name}.</div>
+     <button class="btn pri wide" id="d-scan" style="max-width:280px;margin:6px auto 0">${IC.qr}Open camera scanner</button></div>
+   ${kpiGrid([['Valid tonight',''+S.tickets.filter(t=>t.used).length],['Rejected','0']])}`;}
+ if(tab==='tonight'){return `<div class="pro-h">Tonight</div><div class="pro-sub">Live door numbers.</div>
+   ${kpiGrid([['Scanned',''+S.tickets.filter(t=>t.used).length,'',''],['On the list',''+S.tickets.length,'',''],['Capacity','82%','',''],['Wait time','~6 min','','']])}
+   <div class="dcard"><div class="dch"><h4>Entries by hour</h4></div>${barChart([10,25,55,80,95,70],['22','23','00','01','02','03'])}</div>`;}
+ return '';
+}
+/* -------- GOD MODE -------- */
+function godVenueRow(v){
+ const st=v.status==='open'?'Open':v.status==='soon'?'Opens later':'Closed';
+ const stc=v.status==='open'?'var(--green)':v.status==='soon'?'var(--amber)':'var(--muted2)';
+ const flag=v.signed===false&&!v.eventbrite;
+ return `<div class="venuerow"><div class="vi" style="background:${VIBES[v.vibe]}"></div>
+   <div class="vt"><h4>${v.name}</h4><p>${v.hood} · <span style="color:${stc}">${st}</span>
+     <span class="intbadge ${v.signed===false?'uns':'sig'}">${v.signed===false?'Unsigned':'Signed'}</span>${flag?`<span class="intbadge warn">Link missing</span>`:''}</p></div>
+   <div class="sw ${v.published!==false?'on':''}" data-vis="${v.id}"></div>
+   <button class="optbtn" data-opts="${v.id}">${IC.dots}</button></div>`;
+}
+function proGodBody(tab){
+ if(tab==='overview'){return `<div class="pro-h">Platform</div><div class="pro-sub">Everything, everywhere, all at once.</div>
+   ${kpiGrid([['Platform GMV','€1.9M','▲ 31% MoM'],['Active venues',''+VENUES.filter(v=>v.published!==false).length,'live',''],['Organizers','118','7 pending',''],['Tickets / mo','64.2k','▲ 24%']])}
+   <div class="dcard"><div class="dch"><h4>GMV · 6 months</h4></div>${barChart([45,52,60,58,78,96],['A','M','J','J','A','S'])}</div>`;}
+ if(tab==='approvals'){
+   const orgs=ORG_APPS.filter(o=>o.state==='pending');
+   const props=PROPOSALS.filter(p=>p.state==='pending_venue');
+   return `<div class="pro-h">Approvals</div><div class="pro-sub">Gate organizers and override event publishing.</div>
+     <div class="sec-h">Organizer applications <span class="cnt">${orgs.length} pending</span></div>
+     ${orgs.length?orgs.map(o=>`<div class="dcard"><div class="approw" style="border:0;padding:0 0 10px"><div class="ai" style="--evibe:${VIBES.house}"></div><div class="at"><h5>${o.name}</h5><p>${o.info}</p></div><span class="pill pend">Pending</span></div>
+       <div class="miniact"><button class="app" data-oapp="${o.id}">Approve</button><button class="rej" data-orej="${o.id}">Reject</button></div></div>`).join(''):emptyLine('All organizers reviewed.')}
+     <div class="sec-h">Event proposals <span class="cnt">${props.length}</span></div>
+     ${props.length?props.map(p=>`<div class="dcard"><div class="approw" style="border:0;padding:0 0 10px"><div class="ai" style="--evibe:${VIBES[p.vibe]}"></div><div class="at"><h5>${p.title}</h5><p>${p.org} → ${VENUE(p.venueId)?.name}</p></div></div>
+       <div class="miniact"><button class="app" data-approve="${p.id}">Force publish</button><button class="rej" data-reject="${p.id}">Reject</button></div></div>`).join(''):emptyLine('No proposals in flight.')}`;}
+ if(tab==='venues'){
+   const cities=countryOrder().flatMap(c=>DESTINATIONS.filter(d=>d.country===c)).filter(d=>destVenueCount(d.slug)>0);
+   const total=VENUES.length;
+   return `<div class="pro-h">Venues</div><div class="pro-sub">${total} club${total===1?'':'s'} across ${cities.length} destination${cities.length===1?'':'s'}, grouped by location. On/off controls public visibility.</div>
+   ${cities.map(d=>`<div class="sec-h" style="margin:22px 0 8px">${d.name} <span class="cnt">${d.country} · ${destVenueCount(d.slug)}</span></div>
+     ${VENUES.filter(v=>v.city===d.slug).map(godVenueRow).join('')}`).join('')}`;}
+ if(tab==='controls'){return `<div class="pro-h">App controls</div><div class="pro-sub">Reconfigure and re-skin the live product.</div>
+   <div class="sec-h">Accent theme</div>
+   <div class="swatches">${SWATCHES.map((s,i)=>`<div class="swatch ${APPSETTINGS.accent===s[0]?'on':''}" data-sw="${i}" style="background:linear-gradient(135deg,${s[0]},${s[1]});color:${s[0]}"></div>`).join('')}</div>
+   <div class="ctrlrow"><div class="ct"><h4>Require account to buy</h4><p>Force guest checkout to create an account first.</p></div><div class="sw ${APPSETTINGS.requireAccount?'on':''}" data-set="requireAccount"></div></div>
+   <div class="ctrlrow"><div class="ct"><h4>Surge pricing banner</h4><p>Show a high-demand banner across the guest app.</p></div><div class="sw ${APPSETTINGS.surge?'on':''}" data-set="surge"></div></div>
+   <div class="sec-h">Add a venue</div>
+   <div class="field"><input id="g-vname" placeholder="Venue name"></div>
+   <div class="field"><select id="g-vvibe">${Object.keys(VIBES).map(k=>`<option value="${k}">${k}</option>`).join('')}</select></div>
+   <button class="btn pri wide" id="g-addvenue">${IC.plus}Publish new venue to the map</button>`;}
+ if(tab==='locations'){
+   const groups=countryOrder().map(c=>({country:c,list:DESTINATIONS.filter(d=>d.country===c)}));
+   return `<div class="pro-h">Locations</div><div class="pro-sub">Countries and nightlife destinations. On/off controls whether customers can select a city.</div>
+     ${groups.map(g=>`<div class="locgroup ${g.list.some(d=>d.slug===S.dest)?'open':''}">
+       <button class="gh"><h3>${g.country}</h3><span class="cx">${g.list.length}</span>
+         <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+       <div class="gbody">${g.list.map(d=>`<div class="venuerow">
+         <div class="lflag" style="width:40px;height:40px">${d.cc}</div>
+         <div class="vt"><h4>${d.name}</h4><p>${d.country} · ${destVenueCount(d.slug)} venue${destVenueCount(d.slug)===1?'':'s'} · ${destEventCount(d.slug)} event${destEventCount(d.slug)===1?'':'s'}</p></div>
+         <div class="sw ${d.published!==false?'on':''}" data-lvis="${d.slug}"></div>
+         <button class="optbtn" data-lopts="${d.slug}">${IC.dots}</button></div>`).join('')}</div></div>`).join('')}`;}
+ if(tab==='users'){return `<div class="pro-h">Users & staff</div><div class="pro-sub">Roles and permissions across the platform.</div>
+   ${[['Mario Rossi','Guest','ok'],['NightForm Collective','Organizer','ok'],['Alcatraz Mgmt','Venue','ok'],['Luca R.','Door staff','ok'],['Underground Milano','Organizer','pend']].map(u=>`<div class="listrow"><div class="li">${IC.user}</div><div class="lt"><h4>${u[0]}</h4><p style="font-size:11.5px;color:var(--muted)">${u[1]}</p></div><span class="pill ${u[2]}">${u[2]==='ok'?'Active':'Pending'}</span></div>`).join('')}`;}
+ return '';
+}
+
+/* -------- pro interactions -------- */
+function proBind(){
+ const mode=S.mode,tab=S.proTab;
+ // approvals shared
+ $$('#pro-body [data-approve]').forEach(b=>b.onclick=()=>approveProposal(b.dataset.approve));
+ $$('#pro-body [data-reject]').forEach(b=>b.onclick=()=>{PROPOSALS=PROPOSALS.filter(p=>p.id!==b.dataset.reject);toast('Proposal declined');renderProBody();});
+ $$('#pro-body [data-oapp]').forEach(b=>b.onclick=()=>{const o=ORG_APPS.find(x=>x.id===b.dataset.oapp);o.state='approved';toast(o.name+' approved & activated');renderProBody();});
+ $$('#pro-body [data-orej]').forEach(b=>b.onclick=()=>{const o=ORG_APPS.find(x=>x.id===b.dataset.orej);o.state='rejected';toast('Application rejected');renderProBody();});
+ if(mode==='venue'){
+   $('#v-create')&&($('#v-create').onclick=()=>openCreateEvent(false));
+   $('#v-scan')&&($('#v-scan').onclick=openScanner);
+   $('#v-staff')&&($('#v-staff').onclick=()=>toast('Staff invite link created'));
+   $$('#pro-body [data-tbl]').forEach(sw=>sw.onclick=()=>{const v=VENUE(S.proVenue);const t=v._fp.tables.find(x=>x.id===sw.dataset.tbl);t.sold=!t.sold;renderProBody();toast('Table '+t.label+(t.sold?' closed':' opened'));});
+   $('#vs-venue')&&($('#vs-venue').onchange=e=>{S.proVenue=e.target.value;renderPro();});
+   $('#vs-save')&&($('#vs-save').onclick=()=>{const v=VENUE(S.proVenue);v.name=$('#vs-name').value||v.name;v.hood=$('#vs-hood').value||v.hood;v.desc=$('#vs-desc').value||v.desc;v.price=$('#vs-price').value;renderMarkers();toast('Saved — live in the guest app');renderPro();});
+ }
+ if(mode==='organizer'){$('#o-create')&&($('#o-create').onclick=()=>openCreateEvent(true));}
+ if(mode==='door'){$('#d-scan')&&($('#d-scan').onclick=openScanner);}
+ if(mode==='god'){
+   $$('#pro-body [data-vis]').forEach(sw=>sw.onclick=()=>toggleVenueVisibility(sw.dataset.vis));
+   $$('#pro-body [data-opts]').forEach(b=>b.onclick=()=>openVenueOptions(b.dataset.opts));
+   $$('#pro-body [data-sw]').forEach(sw=>sw.onclick=()=>{setAccent(SWATCHES[+sw.dataset.sw]);renderProBody();toast('Accent theme applied across the app');});
+   $$('#pro-body [data-set]').forEach(sw=>sw.onclick=()=>{const k=sw.dataset.set;APPSETTINGS[k]=!APPSETTINGS[k];renderProBody();toast((k==='requireAccount'?'Account requirement ':'Surge banner ')+(APPSETTINGS[k]?'on':'off'));});
+   $('#g-addvenue')&&($('#g-addvenue').onclick=()=>{const n=$('#g-vname').value.trim();if(!n){toast('Name the venue first');return;}godAddVenue(n,$('#g-vvibe').value);toast('“'+n+'” is now live on the map');renderProBody();});
+   $$('#pro-body [data-lvis]').forEach(sw=>sw.onclick=()=>toggleDestVisibility(sw.dataset.lvis));
+   $$('#pro-body [data-lopts]').forEach(b=>b.onclick=()=>openDestOptions(b.dataset.lopts));
+   $$('#pro-body .locgroup .gh').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+ }
+}
+/* ---- God Mode: locations ---- */
+function toggleDestVisibility(slug){
+ const d=DEST(slug);const turningOff=d.published!==false;
+ const apply=()=>{d.published=turningOff?false:true;if(d.published===false&&S.dest===slug){/* keep selection but it's now hidden */}renderProBody();toast(d.name+(d.published===false?' hidden from customers':' visible to customers'));};
+ if(turningOff){
+   const vc=destVenueCount(slug);
+   confirmSheet('Turn off '+d.name+'?','Customers won\'t be able to select or browse '+d.name+'. Its '+vc+' venue'+(vc===1?'':'s')+', events, configuration, analytics and history are preserved and it stays here in God Mode.','Turn off',apply);
+ } else apply();
+}
+function openDestOptions(slug){
+ const d=DEST(slug);
+ gmOpen(`<div class="fgrab"></div><h3>${d.name}</h3><p style="color:var(--muted);font-size:13px">${d.country} · ${d.published===false?'Hidden':'Visible'} · ${destVenueCount(slug)} venues</p>
+   <div style="margin-top:14px">
+     <button class="menurow" data-act="edit">${IC.edit}Edit destination</button>
+     <button class="menurow" data-act="preview">${IC.user}Preview as customer</button>
+     <button class="menurow" data-act="venues">${IC.map}View venues</button>
+   </div>`);
+ $$('#gmsheet .menurow').forEach(b=>b.onclick=()=>{const a=b.dataset.act;gmClose();
+   if(a==='edit')openLocationEditor(slug);
+   else if(a==='preview'){applyDestination(slug);exitToGuest();setTab('map');}
+   else toast(destVenueCount(slug)+' venue'+(destVenueCount(slug)===1?'':'s')+' in '+d.name+(destVenueCount(slug)?'':' — venue import handled separately'));});
+}
+function openLocationEditor(slug){
+ const d=DEST(slug);S._ldit={...d};S._lslug=slug;renderLocationEditor();$('#overlay2').classList.add('show');
+}
+function renderLocationEditor(){
+ const e=S._ldit,ov=$('#overlay2');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="le-back">${IC.back}</button><div class="ovtitle">Edit destination</div></div>
+  <div class="flowbody">
+    <div class="step-h">${esc(e.name)}</div><div class="step-sub">God Mode · destination settings. Venue import is handled separately.</div>
+    <div class="field"><label>Display name</label><input id="le-name" value="${esc(e.name)}"></div>
+    <div class="field"><label>URL slug</label><input id="le-slug" value="${esc(e.slug)}"></div>
+    <div class="field row2"><div><label>Country</label><input id="le-country" value="${esc(e.country)}"></div><div><label>Country code</label><input id="le-cc" value="${esc(e.cc)}"></div></div>
+    <div class="field row2"><div><label>Currency</label><select id="le-cur">${Object.keys(CURRENCY).map(k=>`<option ${k===e.currency?'selected':''}>${k}</option>`).join('')}</select></div>
+      <div><label>Timezone</label><input id="le-tz" value="${esc(e.tz)}"></div></div>
+    <div class="field row2"><div><label>Latitude</label><input id="le-lat" value="${esc(e.lat)}"></div><div><label>Longitude</label><input id="le-lng" value="${esc(e.lng)}"></div></div>
+    <div class="field row2"><div><label>Default map zoom</label><input id="le-zoom" value="${esc(e.zoom||12)}"></div><div><label>Map bounds (optional)</label><input id="le-bounds" value="${esc(e.bounds||'')}" placeholder="SW;NE"></div></div>
+    <div class="ctrlrow"><div class="ct"><h4>Public visibility</h4><p>Show in the customer location selector.</p></div><div class="sw ${e.published!==false?'on':''}" id="le-vis"></div></div>
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="le-save">Save destination</button></div>`;
+ ov.scrollTop=0;
+ $('#le-back').onclick=()=>ov.classList.remove('show');
+ $('#le-vis').onclick=()=>{e.published=(e.published===false);$('#le-vis').classList.toggle('on',e.published!==false);};
+ $('#le-save').onclick=saveLocationEditor;
+}
+function saveLocationEditor(){
+ const e=S._ldit,d=DEST(S._lslug);
+ const g=(id)=>$(id)?$(id).value.trim():'';
+ const name=g('#le-name')||d.name, slug=(g('#le-slug')||d.slug).toLowerCase().replace(/[^a-z0-9-]/g,''), country=g('#le-country')||d.country;
+ if(!slug){toast('Slug cannot be empty');return;}
+ if(DESTINATIONS.some(x=>x!==d&&x.slug===slug)){toast('That slug is already in use');return;}
+ if(DESTINATIONS.some(x=>x!==d&&x.country.toLowerCase()===country.toLowerCase()&&x.name.toLowerCase()===name.toLowerCase())){toast('That country + destination already exists');return;}
+ const oldSlug=d.slug;
+ d.name=name;d.slug=slug;d.country=country;d.cc=g('#le-cc')||d.cc;d.currency=$('#le-cur').value;d.tz=g('#le-tz')||d.tz;
+ d.lat=parseFloat(g('#le-lat'))||d.lat;d.lng=parseFloat(g('#le-lng'))||d.lng;d.zoom=parseInt(g('#le-zoom'))||d.zoom;d.bounds=g('#le-bounds')||undefined;
+ d.published=e.published;
+ if(slug!==oldSlug){VENUES.forEach(v=>{if(v.city===oldSlug)v.city=slug;});if(S.dest===oldSlug)S.dest=slug;S.recentDests=S.recentDests.map(s=>s===oldSlug?slug:s);saveDestPrefs();}
+ $('#overlay2').classList.remove('show');renderProBody();refreshDestControls();toast(d.name+' updated');
+}
+/* ---- God Mode: generic sheet + confirm ---- */
+function gmOpen(html){$('#gmsheet').innerHTML=html;$('#gmback').classList.add('show');$('#gmsheet').classList.add('show');$('#gmback').onclick=gmClose;}
+function gmClose(){$('#gmback').classList.remove('show');$('#gmsheet').classList.remove('show');}
+function confirmSheet(title,msg,okLabel,onOk){
+ gmOpen(`<div class="fgrab"></div><h3>${title}</h3><p style="color:var(--muted);font-size:13.5px;line-height:1.55;margin-top:6px">${msg}</p>
+   <div class="factions"><button class="btn ghost" id="cf-cancel">Cancel</button><button class="btn pri" id="cf-ok">${okLabel}</button></div>`);
+ $('#cf-cancel').onclick=gmClose;$('#cf-ok').onclick=()=>{gmClose();onOk();};
+}
+function esc(s){return String(s==null?'':s).replace(/"/g,'&quot;');}
+function hasUpcomingNative(v){return S.tickets.some(t=>t.venue&&t.venue.id===v.id&&!t.used)||S.reservations.some(r=>r.venue&&r.venue.id===v.id);}
+/* ---- visibility (on/off) ---- */
+function toggleVenueVisibility(id){
+ const v=VENUE(id);const turningOff=v.published!==false;
+ const apply=()=>{v.published=turningOff?false:true;renderMarkers();renderProBody();toast(v.name+(v.published===false?' hidden from customers':' visible to customers'));};
+ if(turningOff&&v.signed!==false&&hasUpcomingNative(v)){
+   confirmSheet('Turn off '+v.name+'?','This venue has upcoming native bookings. Turning it off hides it from Map, Search, Discover and results, so customers can no longer discover it. Existing bookings are kept — nothing is cancelled.','Turn off',apply);
+ } else if(turningOff){
+   confirmSheet('Turn off '+v.name+'?','It will be hidden from Map, Search, Discover and results. Its events, metrics, configuration and history are preserved, and it stays here in God Mode.','Turn off',apply);
+ } else apply();
+}
+/* ---- options menu ---- */
+function openVenueOptions(id){
+ const v=VENUE(id);
+ gmOpen(`<div class="fgrab"></div><h3>${v.name}</h3><p style="color:var(--muted);font-size:13px">${v.hood} · ${v.signed===false?'Unsigned':'Signed'} · ${v.published===false?'Hidden':'Visible'}</p>
+   <div style="margin-top:14px">
+     <button class="menurow" data-act="edit">${IC.edit}Edit club</button>
+     <button class="menurow" data-act="events">${IC.ticket2}Manage events</button>
+     <button class="menurow" data-act="view">${IC.user}View as customer</button>
+   </div>`);
+ $$('#gmsheet .menurow').forEach(b=>b.onclick=()=>{const a=b.dataset.act;gmClose();
+   if(a==='edit')openClubEditor(id);else if(a==='events')openManageEvents(id);else openVenue(id);});
+}
+/* ---- club editor ---- */
+function openClubEditor(id){
+ const v=VENUE(id);
+ S._editId=id;
+ S._edit={name:v.name,signed:v.signed!==false,eventbrite:v.eventbrite||'',hood:v.hood,city:v.city||'Milano',address:v.address||'',
+   lat:v.lat||'',lng:v.lng||'',desc:v.desc,type:v.type,genres:(v.genres||[]).join(', '),price:v.price,hours:v.open||'',
+   minage:v.minage||'18+',contact:v.contact||'',website:v.website||'',instagram:v.instagram||'',vibe:v.vibe,published:v.published!==false};
+ renderClubEditor();$('#overlay2').classList.add('show');
+}
+function captureEditor(){
+ const e=S._edit;const m={'#ce-eb':'eventbrite','#ce-name':'name','#ce-type':'type','#ce-hood':'hood','#ce-city':'city','#ce-address':'address','#ce-lat':'lat','#ce-lng':'lng','#ce-desc':'desc','#ce-genres':'genres','#ce-price':'price','#ce-minage':'minage','#ce-hours':'hours','#ce-contact':'contact','#ce-website':'website','#ce-instagram':'instagram','#ce-vibe':'vibe'};
+ for(const [sel,key] of Object.entries(m)){const n=$(sel);if(n)e[key]=n.value;}
+}
+function renderClubEditor(){
+ const e=S._edit,ov=$('#overlay2');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="ce2-back">${IC.back}</button><div class="ovtitle">Edit club</div></div>
+  <div class="flowbody">
+    <div class="step-h">${esc(e.name)||'Club'}</div><div class="step-sub">God Mode · edit all core club information.</div>
+    <div class="field"><label>Club integration</label>
+      <div class="segfull"><button class="${e.signed?'on':''}" data-int="signed">Signed</button><button class="${!e.signed?'on':''}" data-int="unsigned">Unsigned</button></div>
+      ${e.signed?`<div class="reqnote">${IC.check}Native ticketing, tables, QR, group payments, analytics and venue login are enabled.</div>`
+                :`<div class="reqnote warn">${IC.ext}Customers will be redirected to this Eventbrite page to purchase tickets or reserve tables.</div>`}</div>
+    ${!e.signed?`<div class="field"><label>Eventbrite URL (required)</label><input id="ce-eb" value="${esc(e.eventbrite)}" placeholder="https://www.eventbrite.com/e/…"></div>`:''}
+    <div class="field"><label>Club name</label><input id="ce-name" value="${esc(e.name)}"></div>
+    <div class="field"><label>Club type</label><input id="ce-type" value="${esc(e.type)}"></div>
+    <div class="field row2"><div><label>Neighbourhood</label><input id="ce-hood" value="${esc(e.hood)}"></div><div><label>City</label><input id="ce-city" value="${esc(e.city)}"></div></div>
+    <div class="field"><label>Address</label><input id="ce-address" value="${esc(e.address)}" placeholder="Via …"></div>
+    <div class="field row2"><div><label>Latitude</label><input id="ce-lat" value="${esc(e.lat)}"></div><div><label>Longitude</label><input id="ce-lng" value="${esc(e.lng)}"></div></div>
+    <div class="field"><label>Description</label><input id="ce-desc" value="${esc(e.desc)}"></div>
+    <div class="field"><label>Music genres (comma-separated)</label><input id="ce-genres" value="${esc(e.genres)}"></div>
+    <div class="field row2"><div><label>Price level</label><select id="ce-price">${['€','€€','€€€'].map(p=>`<option ${p===e.price?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div><label>Minimum age</label><input id="ce-minage" value="${esc(e.minage)}"></div></div>
+    <div class="field"><label>Opening hours</label><input id="ce-hours" value="${esc(e.hours)}"></div>
+    <div class="field"><label>Contact email</label><input id="ce-contact" value="${esc(e.contact)}"></div>
+    <div class="field"><label>Official website</label><input id="ce-website" value="${esc(e.website)}"></div>
+    <div class="field"><label>Instagram</label><input id="ce-instagram" value="${esc(e.instagram)}"></div>
+    <div class="field"><label>Cover image (style)</label><select id="ce-vibe">${Object.keys(VIBES).map(k=>`<option ${k===e.vibe?'selected':''}>${k}</option>`).join('')}</select></div>
+    <div class="ctrlrow"><div class="ct"><h4>Public visibility</h4><p>Show in Map, Search, Discover and results.</p></div><div class="sw ${e.published?'on':''}" id="ce-vis"></div></div>
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="ce-save">Save changes</button></div>`;
+ ov.scrollTop=0;
+ $('#ce2-back').onclick=()=>ov.classList.remove('show');
+ $$('#overlay2 [data-int]').forEach(b=>b.onclick=()=>{captureEditor();S._edit.signed=(b.dataset.int==='signed');renderClubEditor();});
+ $('#ce-vis')&&($('#ce-vis').onclick=()=>{S._edit.published=!S._edit.published;$('#ce-vis').classList.toggle('on',S._edit.published);});
+ $('#ce-save').onclick=saveClubEditor;
+}
+function saveClubEditor(){
+ captureEditor();const e=S._edit,v=VENUE(S._editId);
+ if(!e.signed&&!(e.eventbrite||'').trim()){toast('Eventbrite URL is required for unsigned clubs');return;}
+ const wasSigned=v.signed!==false,nowSigned=!!e.signed;
+ const apply=()=>{
+   v.name=e.name||v.name;v.type=e.type||v.type;v.hood=e.hood||v.hood;v.city=e.city;v.address=e.address;
+   v.lat=e.lat;v.lng=e.lng;v.desc=e.desc||v.desc;v.genres=(e.genres||'').split(',').map(s=>s.trim()).filter(Boolean);
+   v.price=e.price;v.minage=e.minage;v.open=e.hours||v.open;v.contact=e.contact;v.website=e.website;v.instagram=e.instagram;
+   v.vibe=e.vibe||v.vibe;v.signed=nowSigned;v.eventbrite=(e.eventbrite||'').trim()||null;v.published=e.published;
+   renderMarkers();renderProBody();$('#overlay2').classList.remove('show');toast(v.name+' updated — live in the app');
+ };
+ if(wasSigned&&!nowSigned){
+   confirmSheet('Switch to Unsigned?','Native purchases will be disabled and booking actions replaced with the Eventbrite redirect. Historical bookings, analytics, photos and events are preserved, and existing QR tickets and confirmed reservations stay valid.','Switch to Unsigned',apply);
+ } else apply();
+}
+/* ---- manage events (per-event Eventbrite URL) ---- */
+function openManageEvents(id){
+ const v=VENUE(id),ov=$('#overlay2');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="me-back">${IC.back}</button><div class="ovtitle">Manage events</div></div>
+  <div class="flowbody">
+    <div class="step-h">${esc(v.name)}</div>
+    <div class="step-sub">${v.signed===false?'Unsigned — an event link overrides the club link. If neither is set, booking shows as unavailable.':'Signed — events use native booking.'}</div>
+    ${v.events.map(e=>`<div class="dcard"><div class="approw" style="border:0;padding:0 0 8px"><div class="ai" style="--evibe:${VIBES[e.vibe]}"></div><div class="at"><h5>${e.title}</h5><p>${e.day} ${e.mon} · ${e.time}</p></div>${v.signed===false?`<span class="intbadge ${e.eventbrite?'sig':(v.eventbrite?'uns':'warn')}">${e.eventbrite?'Event link':(v.eventbrite?'Uses club link':'No link')}</span>`:`<span class="intbadge sig">Native</span>`}</div>
+      <div class="field" style="margin:0"><label>Event Eventbrite URL${v.signed===false?' (overrides club link)':''}</label><input data-eb="${e.id}" value="${esc(e.eventbrite||'')}" placeholder="https://www.eventbrite.com/e/…"></div></div>`).join('')}
+  </div>
+  <div class="footer-cta"><button class="btn pri wide" id="me-save">Save event links</button></div>`;
+ ov.classList.add('show');ov.scrollTop=0;
+ $('#me-back').onclick=()=>ov.classList.remove('show');
+ $('#me-save').onclick=()=>{$$('#overlay2 [data-eb]').forEach(inp=>{const ev=v.events.find(x=>x.id===inp.dataset.eb);if(ev)ev.eventbrite=inp.value.trim()||null;});toast('Event links saved');ov.classList.remove('show');renderProBody();};
+}
+function approveProposal(id){
+ const p=PROPOSALS.find(x=>x.id===id);if(!p)return;
+ const v=VENUE(p.venueId);
+ v.events.unshift({id:'ev'+Date.now(),title:p.title,art:p.org,day:p.day,mon:p.mon,time:p.time,vibe:p.vibe,genres:p.genres,
+   desc:p.title+' — presented by '+p.org+'.',tiers:[{n:p.tier.n,p:p.tier.p,left:p.tier.q,d:'Standard entry'}]});
+ PROPOSALS=PROPOSALS.filter(x=>x.id!==id);
+ toast('Approved — now live at '+v.name);renderProBody();
+}
+function godAddVenue(name,vibe){
+ const id='v'+Date.now(),c=venueCentroid();
+ VENUES.push({id,name,type:'Club',hood:'Milano',dist:'2.0 km',x:c.x+(Math.random()*14-7),y:c.y+(Math.random()*14-7),vibe,city:S.dest,signed:true,eventbrite:null,
+  status:'open',open:'Open now',price:'€€',genres:['House'],tags:['Newly Opened'],newly:true,atmosphere:'Just added',published:true,saved:false,
+  desc:name+' — the newest addition to Milan’s nightlife, just published to Nocturne.',tickets:{from:20,left:'Available'},tablesText:'10 tables · from €300',
+  events:[{id:id+'e',title:'Opening Night',art:'Resident DJs',day:'30',mon:'SEP',time:'23:00–04:00',vibe,genres:['House'],desc:'Grand opening night.',tiers:[{n:'General',p:20,left:250,d:'Standard entry'}]}]});
+ renderMarkers();
+}
+function setAccent(s){
+ APPSETTINGS.accent=s[0];const d=document.documentElement.style;
+ d.setProperty('--violet',s[0]);d.setProperty('--violet-2',s[0]);d.setProperty('--magenta',s[1]);
+ d.setProperty('--grad',`linear-gradient(135deg,${s[0]},${s[1]})`);
+ d.setProperty('--grad-soft',`linear-gradient(135deg,${s[0]}33,${s[1]}22)`);
+ d.setProperty('--glow',`0 0 32px ${s[0]}73`);
+}
+/* create event / proposal */
+function openCreateEvent(asProposal){
+ const ov=$('#overlay2');
+ const venueOpts=VENUES.map(v=>`<option value="${v.id}" ${v.id===S.proVenue?'selected':''}>${v.name}</option>`).join('');
+ ov.innerHTML=`<div class="ovback"><button class="roundbtn" id="ce-back">${IC.back}</button><div class="ovtitle">${asProposal?'New proposal':'Create event'}</div></div>
+   <div class="flowbody">
+     <div class="step-h">${asProposal?'Propose an event':'Create an event'}</div>
+     <div class="step-sub">${asProposal?'Submitted to the venue for approval, then to guests.':'Publishes straight to your venue.'}</div>
+     <div class="field"><label>Event title</label><input id="ce-title" placeholder="Warehouse: …"></div>
+     ${asProposal?`<div class="field"><label>Venue</label><select id="ce-venue">${venueOpts}</select></div>`:''}
+     <div class="field"><label>Artists / line-up</label><input id="ce-art" placeholder="Headliner · support"></div>
+     <div class="field row2"><div><label>Day</label><input id="ce-day" placeholder="21"></div><div><label>Month</label><input id="ce-mon" placeholder="SEP"></div></div>
+     <div class="field"><label>Time</label><input id="ce-time" placeholder="23:00–05:00"></div>
+     <div class="field"><label>Genre</label><select id="ce-genre">${['Techno','House','EDM','Latin','Rooftop','Speakeasy'].map(g=>`<option>${g}</option>`).join('')}</select></div>
+     <div class="field row2"><div><label>Ticket name</label><input id="ce-tn" value="General"></div><div><label>Price €</label><input id="ce-tp" type="number" value="20"></div></div>
+     <div class="field"><label>Quantity</label><input id="ce-tq" type="number" value="300"></div>
+   </div>
+   <div class="footer-cta"><button class="btn pri wide" id="ce-submit">${asProposal?'Submit for approval':'Publish event'}</button></div>`;
+ ov.classList.add('show');ov.scrollTop=0;
+ $('#ce-back').onclick=()=>ov.classList.remove('show');
+ const gmap={Techno:'techno',House:'house',EDM:'edm',Latin:'latin',Rooftop:'rooftop',Speakeasy:'speak'};
+ $('#ce-submit').onclick=()=>{
+   const title=$('#ce-title').value.trim();if(!title){toast('Give the event a title');return;}
+   const genre=$('#ce-genre').value,vibe=gmap[genre]||'house';
+   const day=$('#ce-day').value||'21',mon=($('#ce-mon').value||'SEP').toUpperCase(),time=$('#ce-time').value||'23:00–05:00';
+   const tier={n:$('#ce-tn').value||'General',p:+$('#ce-tp').value||20,q:+$('#ce-tq').value||300};
+   if(asProposal){
+     const venueId=$('#ce-venue').value;
+     PROPOSALS.push({id:'pr'+Date.now(),title,org:ORG_ME,venueId,day,mon,time,genres:[genre],tier,state:'pending_venue',vibe});
+     toast('Proposal submitted to '+VENUE(venueId).name);
+   }else{
+     const v=VENUE(S.proVenue);
+     v.events.unshift({id:'ev'+Date.now(),title,art:$('#ce-art').value||'Line-up TBA',day,mon,time,vibe,genres:[genre],
+       desc:title+' at '+v.name+'.',tiers:[{n:tier.n,p:tier.p,left:tier.q,d:'Standard entry'}]});
+     toast('Event published — live in the guest app');
+   }
+   ov.classList.remove('show');renderProBody();
+ };
+}
+
+/* ======================= INIT (after all declarations) ======================= */
+try{const sd=localStorage.getItem('nocturne-dest');if(sd&&DEST(sd)&&DEST(sd).published!==false)S.dest=sd;
+    const sr=JSON.parse(localStorage.getItem('nocturne-recents')||'null');if(Array.isArray(sr)&&sr.length)S.recentDests=sr.filter(s=>DEST(s));}catch(e){}
+if(!S.recentDests.includes(S.dest))S.recentDests.unshift(S.dest);
+sizeWorld(); renderChips(); renderMarkers(); initMapPanZoom(); refreshDestControls(); setTab('map');
+window.addEventListener('resize',()=>sizeWorld());
+</script>
+<!-- icon set injected before app script via IC object -->
+<script>
+/* placeholder to ensure IC defined — real IC below is loaded first */
+</script>
+</body>
+</html>
+
+</body></html>

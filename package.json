@@ -1,0 +1,69 @@
+{
+  "name": "clubby-platform",
+  "version": "0.1.0",
+  "private": true,
+  "files": ["dist", "database/migrations", "scripts/container-entry.mjs", "scripts/healthcheck.mjs"],
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "tsx apps/api/src/main.ts",
+    "local": "node scripts/local.mjs",
+    "admin:bootstrap": "tsx scripts/bootstrap-admin.ts",
+    "worker": "tsx apps/worker/src/main.ts",
+    "build": "tsup",
+    "build:beta": "node scripts/build-beta.mjs",
+    "dev:web": "node scripts/beta-server.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "check": "pnpm typecheck && pnpm --filter @clubby/mobile typecheck && pnpm test:web && pnpm test:database && pnpm build && pnpm build:beta",
+    "test:web": "node --test tests/*.test.mjs",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "catalogue:import": "tsx scripts/import-catalogue.ts",
+    "test:database": "node scripts/with-test-postgres.mjs",
+    "gate": "node scripts/check-phase.mjs",
+    "agent:run": "npm --prefix tools/clubby-agents run start --"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1138.0",
+    "@clubby/ai-provider": "workspace:*",
+    "@clubby/api-client": "workspace:*",
+    "@clubby/contracts": "workspace:*",
+    "@clubby/ingestion": "workspace:*",
+    "@fastify/cookie": "11.1.2",
+    "@fastify/cors": "11.3.0",
+    "@fastify/helmet": "13.1.1",
+    "@fastify/rate-limit": "11.2.0",
+    "@nestjs/common": "12.1.0",
+    "@nestjs/core": "12.1.0",
+    "@nestjs/platform-fastify": "12.1.0",
+    "fastify": "5.12.5",
+    "jose": "6.2.12",
+    "passkit-generator": "3.6.1",
+    "pg": "8.23.0",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2",
+    "sharp": "0.35.4",
+    "stripe": "22.6.2",
+    "svix": "2.5.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "@types/node-forge": "1.3.14",
+    "@types/pg": "8.23.1",
+    "node-forge": "1.4.0",
+    "prettier": "3.9.9",
+    "tsup": "8.5.1",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "vitest": "4.1.11"
+  },
+  "optionalDependencies": {
+    "@embedded-postgres/darwin-arm64": "17.10.0-beta.17",
+    "@embedded-postgres/windows-x64": "17.10.0-beta.17"
+  }
+}
